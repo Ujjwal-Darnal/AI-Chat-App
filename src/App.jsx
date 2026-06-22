@@ -23,7 +23,7 @@ function App(){
 
   <main className="app-layout">
     <Sidebar/>
-    <ChatWindow />
+    <ChatWindow  messages ={starterMessages}/>
   </main>
  </div>
   )
