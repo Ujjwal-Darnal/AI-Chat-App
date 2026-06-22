@@ -3,7 +3,7 @@ function ChatWindow(){
 <section className="chat-window">
     <MessageList/>
     <LoadingIndicator/>
-    <ChatInput/>
+  <ChatInput/>
 </section>
   
     )
