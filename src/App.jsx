@@ -19,9 +19,18 @@ const starterMessages = [
 function App(){
   const [messages,setMessages] = useState(starterMessages);
 
+
   // ============ function to add message ===========//
   function handleAddMessage(newMessage){
-    setMessages((prevMessages)=>[...prevMessages,newMessage]);
+    const aiMessage = {
+      id:crypto.randomUUID,
+      role:"assistant",
+      content:`i have recieved a message ${newMessage.content}`
+    }
+    setMessages((prevMessages)=>[
+      ...prevMessages,newMessage,aiMessage,
+    ])
+  
   }
 
   return(
@@ -37,4 +46,4 @@ function App(){
  </div>
   )
 }
-export default App
+export default App;
