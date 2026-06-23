@@ -1,6 +1,7 @@
 import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
 import ChatWindow from "./components/ChatWindow";
+import {useState} from "react";
 
 const starterMessages = [
   {
@@ -15,15 +16,23 @@ const starterMessages = [
   },
 ];
 
-
 function App(){
+  const [messages,setMessages] = useState(starterMessages);
+
+  // ============ function to add message ===========//
+  function handleAddMessage(newMessage){
+    setMessages((prevMessages)=>[...prevMessages,newMessage]);
+  }
+
   return(
  <div className="app">
   <Header/>
 
   <main className="app-layout">
     <Sidebar/>
-    <ChatWindow  messages ={starterMessages}/>
+    <ChatWindow  
+    messages ={messages}
+    onAddMessage = {handleAddMessage}/>
   </main>
  </div>
   )

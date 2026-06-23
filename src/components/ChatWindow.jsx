@@ -2,12 +2,12 @@ import MessageList from "./MessageList";
 import LoadingIndicator from "./LoadingIndicator";
 import ChatInput from "./ChatInput";
 
-function ChatWindow({messages}){
+function ChatWindow({messages,onAddMessage}){
     return(
         <section className="chat-window">
             <MessageList messages = {messages}/>
             <LoadingIndicator/>
-            <ChatInput/>
+            <ChatInput onAddMessage = {onAddMessage}/>
         </section>
     )
 }
