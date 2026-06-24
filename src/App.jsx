@@ -22,15 +22,17 @@ function App(){
 
   const[isLoading,setIsLoading] = useState(false);
 
+  const[error,setError] = useState("");
 
   // ============ function to add message ===========//
   function handleAddMessage(newMessage){
+    setError("");
     setMessages((prevMessages)=>[...prevMessages,newMessage]);
     setIsLoading(true);
 
    setTimeout(()=>{
      const aiMessage = {
-      id:crypto.randomUUID,
+      id:crypto.randomUUID(),
       role:"assistant",
       content:`i have recieved a message ${newMessage.content}`
     }
@@ -51,7 +53,8 @@ function App(){
     <ChatWindow  
     messages ={messages}
     onAddMessage = {handleAddMessage}
-    isLoading={isLoading}/>
+    isLoading={isLoading}
+    error = {error}/>
   </main>
  </div>
   )
