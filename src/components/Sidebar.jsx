@@ -1,10 +1,9 @@
-function Sidebar(){
+function Sidebar(onNewChat){
 return(
- <div className="aside">
-       <aside>app-response</aside>
-    <aside>app-response1</aside>
-    
- </div>
-)
+ <aside className="sidebar">
+   <button type="button"
+   onClick={onNewChat}>+New Chat</button>
+ </aside>
+);
 }
 export default Sidebar;

@@ -51,6 +51,22 @@ function App(){
    },1000);
   
   }
+
+  // function to handle new chat
+  function handleNewChat(){
+    setError("");
+    setIsLoading(false);
+
+    setMessages([
+      {
+        id:crypto.randomUUID(),
+        role:"assistant",
+        content:"Hi,I am your AI assistant. How can I help you today",
+      }
+    ])
+  }
+
+  // for the local Storage
   useEffect (()=>{
 localStorage.setItem("messages",JSON.stringify(messages));
  
@@ -61,7 +77,7 @@ localStorage.setItem("messages",JSON.stringify(messages));
   <Header/>
 
   <main className="app-layout">
-    <Sidebar/>
+    <Sidebar onNewChat = {handleNewChat}/>
     <ChatWindow  
     messages ={messages}
     onAddMessage = {handleAddMessage}
