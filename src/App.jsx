@@ -1,7 +1,7 @@
 import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
 import ChatWindow from "./components/ChatWindow";
-import {useState} from "react";
+import {useState,useEffect} from "react";
 
 const starterMessages = [
   {
@@ -18,7 +18,15 @@ const starterMessages = [
 
 function App(){
   
-  const [messages,setMessages] = useState(starterMessages);
+  const [messages,setMessages] = useState(()=>{
+  const savedMessages = localStorage.getItem("messages");
+
+  if(savedMessages){
+    return JSON.parse(savedMessages);
+  }
+  return starterMessages}
+   
+  );
 
   const[isLoading,setIsLoading] = useState(false);
 
@@ -43,6 +51,10 @@ function App(){
    },1000);
   
   }
+  useEffect (()=>{
+localStorage.setItem("messages",JSON.stringify(messages));
+ 
+  },[messages]);
 
   return(
  <div className="app">

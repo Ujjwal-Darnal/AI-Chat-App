@@ -1,28 +1,28 @@
 import MessageList from "./MessageList";
 import LoadingIndicator from "./LoadingIndicator";
 import ChatInput from "./ChatInput";
-import { useEffect,useRef } from "react";
+import { useEffect, useRef } from "react";
 
-function ChatWindow({messages,onAddMessage,isLoading,error}){
+function ChatWindow({ messages, onAddMessage, isLoading, error }) {
 
     const bottomRef = useRef(null);
 
- useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isLoading]);
+    useEffect(() => {
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [messages, isLoading]);
 
 
-    return(
+    return (
         <section className="chat-window">
-            <MessageList messages = {messages}/>
-           {isLoading &&  <LoadingIndicator/>}
+            <MessageList messages={messages} />
+            {isLoading && <LoadingIndicator />}
 
-           {error && <p className="error-message">{error}</p>}
+            {error && <p className="error-message">{error}</p>}
 
-<div ref={bottomRef}></div>
+            <div ref={bottomRef}></div>
 
-            <ChatInput onAddMessage = {onAddMessage}/>
-            
+            <ChatInput onAddMessage={onAddMessage} />
+
         </section>
     )
 }
