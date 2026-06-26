@@ -66,6 +66,14 @@ function App(){
     ])
   }
 
+  // function to clear the chat
+  function handleClearChat(){
+    setError("");
+    setIsLoading(false);
+    setMessages([]);
+  }
+
+
   // for the local Storage
   useEffect (()=>{
 localStorage.setItem("messages",JSON.stringify(messages));
@@ -77,7 +85,9 @@ localStorage.setItem("messages",JSON.stringify(messages));
   <Header/>
 
   <main className="app-layout">
-    <Sidebar onNewChat = {handleNewChat}/>
+    <Sidebar
+     onNewChat = {handleNewChat}
+     onClearChat = {handleClearChat}/>
     <ChatWindow  
     messages ={messages}
     onAddMessage = {handleAddMessage}
