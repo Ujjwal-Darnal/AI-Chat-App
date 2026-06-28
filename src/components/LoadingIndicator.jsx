@@ -1,3 +1,4 @@
+import "../styles/ChatWindow.css"
 function LoadingIndicator(){
     return(
         <p className="loading-indicator">AI is typing...</p>

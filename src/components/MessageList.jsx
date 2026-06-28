@@ -1,4 +1,5 @@
 import MessageBubble from "./MessageBubble"
+import "../styles/ChatWindow.css"
 function MessageList({messages}){
     return(
        <div className="message-list">
