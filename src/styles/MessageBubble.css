@@ -1,0 +1,24 @@
+.message {
+  max-width: 75%;
+  padding: 0.9rem 1rem;
+  border-radius: 1rem;
+  line-height: 1.5;
+  font-size: 0.98rem;
+}
+
+.message p {
+  margin: 0;
+}
+
+.message.assistant {
+  align-self: flex-start;
+  background-color: #ffffff;
+  color: #3d3929;
+  border: 1px solid #e5e1d8;
+}
+
+.message.user {
+  align-self: flex-end;
+  background-color: #d97757;
+  color: #ffffff;
+}

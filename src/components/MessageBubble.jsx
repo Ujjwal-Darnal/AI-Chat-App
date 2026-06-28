@@ -1,3 +1,4 @@
+import "../styles/MessageBubble.css"
 function MessageBubble({message}){
     return(
         <div className={`message ${message.role}`}>

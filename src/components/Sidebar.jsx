@@ -1,5 +1,5 @@
 import "../styles/Sidebar.css"
-function Sidebar(onNewChat,onClearChat){
+function Sidebar({onNewChat,onClearChat}){
 return(
  <aside className="sidebar">
    <button type="button"
