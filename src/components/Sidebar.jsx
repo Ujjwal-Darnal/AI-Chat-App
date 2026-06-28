@@ -1,3 +1,4 @@
+import "../styles/Sidebar.css"
 function Sidebar(onNewChat,onClearChat){
 return(
  <aside className="sidebar">
