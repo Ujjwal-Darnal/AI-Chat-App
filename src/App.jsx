@@ -2,7 +2,7 @@ import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
 import ChatWindow from "./components/ChatWindow";
 import {useState,useEffect} from "react";
-
+import "./styles/App.css"
 const starterMessages = [
   {
     id: 1,
