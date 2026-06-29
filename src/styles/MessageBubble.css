@@ -22,3 +22,8 @@
   background-color: #d97757;
   color: #ffffff;
 }
+@media (max-width: 768px) {
+  .message {
+    max-width: 90%;
+  }
+}

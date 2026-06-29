@@ -26,3 +26,15 @@
   border-color: #d97757;
   color: #ffffff;
 }
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .sidebar button {
+    flex: 1;
+  }
+}

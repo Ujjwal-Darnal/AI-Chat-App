@@ -42,3 +42,8 @@
   background-color: #d8d3c5;
   cursor: not-allowed;
 }
+@media (max-width: 768px) {
+  .chat-input {
+    padding: 0.75rem;
+  }
+}
