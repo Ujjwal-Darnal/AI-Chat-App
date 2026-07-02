@@ -3,6 +3,9 @@ import Sidebar from "./components/Sidebar";
 import ChatWindow from "./components/ChatWindow";
 import {useState,useEffect} from "react";
 import "./styles/App.css"
+import { getAIResponse } from "./services/aiService";
+
+
 const starterMessages = [
   {
     id: 1,
@@ -33,23 +36,22 @@ function App(){
   const[error,setError] = useState("");
 
   // ============ function to add message ===========//
-  function handleAddMessage(newMessage){
+  async function handleAddMessage(newMessage){
     setError("");
     setMessages((prevMessages)=>[...prevMessages,newMessage]);
     setIsLoading(true);
 
-   setTimeout(()=>{
-     const aiMessage = {
-      id:crypto.randomUUID(),
-      role:"assistant",
-      content:`i have recieved a message ${newMessage.content}`
-    }
-    setMessages((prevMessages)=>[
-      ...prevMessages,aiMessage,
-    ]);
-    setIsLoading(false);
-   },1000);
-  
+const reply = await getAIResponse(newMessage.content);
+
+const aiMessage = {
+  id:crypto.randomUUID(),
+  role:"assistant",
+  content:reply,
+};
+
+setMessages((prevMessages)=>[...prevMessages,aiMessage]);
+setIsLoading(false);
+
   }
 
   // function to handle new chat
