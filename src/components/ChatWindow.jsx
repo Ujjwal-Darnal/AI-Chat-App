@@ -21,7 +21,7 @@ function ChatWindow({ messages, onAddMessage, isLoading, error }) {
 
             <div ref={bottomRef}></div>
 
-            <ChatInput onAddMessage={onAddMessage} />
+            <ChatInput onAddMessage={onAddMessage} isLoading = {isLoading}/>
 
         </section>
     )

@@ -8,6 +8,9 @@ export async function getAIResponse(userMessage) {
       message: userMessage,
     }),
   });
+  if(!response.ok){
+   throw new Error("Unable to fetch AI response");
+  }
 
   const data = await response.json();
 

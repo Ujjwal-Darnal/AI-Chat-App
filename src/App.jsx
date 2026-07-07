@@ -41,16 +41,28 @@ function App(){
     setMessages((prevMessages)=>[...prevMessages,newMessage]);
     setIsLoading(true);
 
-const reply = await getAIResponse(newMessage.content);
+    try{
 
-const aiMessage = {
-  id:crypto.randomUUID(),
-  role:"assistant",
-  content:reply,
-};
+      const reply = await getAIResponse(newMessage.content);
+      const aiMessage = {
+        id:crypto.randomUUID(),
+        role:"assistant",
+        content:reply,
+      };
+    
+       setMessages((prevMessages)=>[...prevMessages,aiMessage]);
+    }
 
-setMessages((prevMessages)=>[...prevMessages,aiMessage]);
-setIsLoading(false);
+    catch(error){
+      console.error(error)
+      setError("Something went wrong")
+    }
+      
+finally{
+
+ 
+  setIsLoading(false);
+}
 
   }
 

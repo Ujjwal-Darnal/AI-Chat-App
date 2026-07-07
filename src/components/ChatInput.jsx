@@ -1,13 +1,13 @@
 import {useState} from "react";
 import "../styles/ChatInput.css"
-function ChatInput({onAddMessage}){
+function ChatInput({onAddMessage,isLoading}){
 
     const[input,setInput] =useState("");
 
     function handleSubmit(e){
         e.preventDefault();
 
-        if(!input.trim())return;
+        if(!input.trim()|| isLoading)return;
 
         const newMessage ={          id:crypto.randomUUID(),
             role:"user",
@@ -28,7 +28,8 @@ function ChatInput({onAddMessage}){
 
             <button 
             type="submit"
-            >Send</button>
+            disabled = {isLoading}
+            >{isLoading? "Thinking...":"Send"}</button>
         </form>
     )
 }
