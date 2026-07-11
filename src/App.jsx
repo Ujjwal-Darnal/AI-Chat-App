@@ -119,6 +119,13 @@ function App() {
     );
   }
 
+  // function to hanldeSelectChat
+
+  function handleSelectChat(chatId){
+   setActiveChatId(chatId);
+  }
+
+
   // Save chats whenever the chats state changes
   useEffect(() => {
     localStorage.setItem("chats", JSON.stringify(chats));
@@ -130,6 +137,9 @@ function App() {
 
       <main className="app-layout">
         <Sidebar
+          chats = {chats}
+          activeChatId = {activeChatId}
+          onSelectChat = {handleSelectChat}
           onNewChat={handleNewChat}
           onClearChat={handleClearChat}
         />
