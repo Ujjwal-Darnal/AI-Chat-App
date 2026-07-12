@@ -41,16 +41,25 @@ function App() {
   async function handleAddMessage(newMessage) {
     setError("");
 
-    setChats((prevChats) =>
-      prevChats.map((chat) =>
-        chat.id === activeChatId
-          ? {
-              ...chat,
-              messages: [...chat.messages, newMessage],
-            }
-          : chat
-      )
+    const newTitle = newMessage.content.length > 30 ?`${newMessage.content.slice(0,30)}...`:newMessage.content;
+
+   setChats((prevChats) =>
+  prevChats.map((chat) => {
+    if (chat.id !== activeChatId) {
+      return chat;
+    }
+
+    const hasUserMessage = chat.messages.some(
+      (message) => message.role === "user"
     );
+
+    return {
+      ...chat,
+      title: !hasUserMessage ? newTitle : chat.title,
+      messages: [...chat.messages, newMessage],
+    };
+  })
+);
 
     setIsLoading(true);
 
