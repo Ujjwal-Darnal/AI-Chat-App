@@ -134,6 +134,37 @@ function App() {
    setActiveChatId(chatId);
   }
 
+  // function to delete chat ============ //
+  function handleDeleteChat(chatId){
+setChats((prevChats)=>{
+  const remainingChats = prevChats.filter((chat)=>chat.id!==chatId);
+
+  if (remainingChats.length === 0) {
+      const newChat = {
+        id: crypto.randomUUID(),
+        title: "New Chat",
+        messages: [
+          {
+            id: crypto.randomUUID(),
+            role: "assistant",
+            content: "Hi, I am your AI assistant. How can I help you today?",
+          },
+        ],
+      };
+
+    setActiveChatId(newChat.id);
+
+    return [newChat];
+  }
+
+  if(chatId === activeChatId){
+    setActiveChatId(remainingChats[0].id)
+  }
+  return remainingChats;
+});
+
+
+  }
 
   // Save chats whenever the chats state changes
   useEffect(() => {
@@ -151,6 +182,7 @@ function App() {
           onSelectChat = {handleSelectChat}
           onNewChat={handleNewChat}
           onClearChat={handleClearChat}
+          onDeleteChat = {handleDeleteChat}
         />
 
         <ChatWindow
