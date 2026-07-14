@@ -28,12 +28,19 @@
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  transition: 0.2s ease;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
 }
 
 .new-chat-button:hover,
 .clear-chat-button:hover {
   background: #0d8f6d;
+}
+
+.new-chat-button:active,
+.clear-chat-button:active {
+  transform: translateY(1px);
 }
 
 /* ===========================
@@ -47,6 +54,7 @@
   gap: 6px;
   overflow-y: auto;
   overflow-x: visible;
+  padding-right: 2px;
 }
 
 /* ===========================
@@ -54,10 +62,11 @@
 =========================== */
 
 .chat-item-row {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  position: relative;
+  min-width: 0;
   border-radius: 8px;
   transition: background 0.2s ease;
 }
@@ -76,16 +85,17 @@
 
 .chat-item {
   flex: 1;
-  background: transparent;
-  border: none;
-  text-align: left;
+  min-width: 0;
   padding: 10px;
-  cursor: pointer;
-  font-size: 14px;
+  border: none;
+  background: transparent;
   color: #333;
+  font-size: 14px;
+  text-align: left;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  cursor: pointer;
 }
 
 /* ===========================
@@ -94,17 +104,22 @@
 
 .chat-menu {
   position: relative;
+  flex-shrink: 0;
 }
 
 .chat-menu-trigger {
   width: 32px;
   height: 32px;
+  display: grid;
+  place-items: center;
+  padding: 0;
   border: none;
-  background: transparent;
   border-radius: 6px;
-  cursor: pointer;
-  font-size: 18px;
+  background: transparent;
   color: #555;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
 }
 
 .chat-menu-trigger:hover {
@@ -117,31 +132,38 @@
 
 .chat-menu-dropdown {
   position: absolute;
-
   right: 0;
-
-  /* Opens UP instead of DOWN */
-  bottom: calc(100% + 6px);
+  z-index: 9999;
 
   width: 140px;
+  padding: 4px;
 
   background: white;
   border: 1px solid #ddd;
   border-radius: 8px;
 
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
 
-  z-index: 999;
+/* First chat opens downward */
+.chat-menu-dropdown.open-down {
+  top: calc(100% + 6px);
+}
+
+/* Other chats open upward */
+.chat-menu-dropdown.open-up {
+  bottom: calc(100% + 6px);
 }
 
 .chat-menu-action {
   width: 100%;
   padding: 10px;
   border: none;
+  border-radius: 6px;
   background: white;
+  font-size: 14px;
   text-align: left;
   cursor: pointer;
-  font-size: 14px;
 }
 
 .chat-menu-action:hover {
