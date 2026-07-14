@@ -6,20 +6,6 @@ import "./styles/App.css";
 import { getAIResponse } from "./services/aiService";
 
 function App() {
-  const starterNewChat = [
-    {
-      id: crypto.randomUUID(),
-      title: "New Chat",
-      messages: [
-        {
-          id: crypto.randomUUID(),
-          role: "assistant",
-          content: "Hi, I am your AI assistant. How can I help you?",
-        },
-      ],
-    },
-  ];
-
   const [chats, setChats] = useState(() => {
     const savedChats = localStorage.getItem("chats");
 
@@ -27,41 +13,66 @@ function App() {
       return JSON.parse(savedChats);
     }
 
-    return starterNewChat;
+    return [];
   });
 
-  const [activeChatId, setActiveChatId] = useState(chats[0]?.id);
+  const [activeChatId, setActiveChatId] = useState(
+    chats[0]?.id ?? null
+  );
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const activeChat = chats.find((chat) => chat.id === activeChatId);
+  const activeChat = chats.find(
+    (chat) => chat.id === activeChatId
+  );
+
   const messages = activeChat ? activeChat.messages : [];
 
   // Add the user's message and request an AI response
   async function handleAddMessage(newMessage) {
     setError("");
-
-    const newTitle = newMessage.content.length > 30 ?`${newMessage.content.slice(0,30)}...`:newMessage.content;
-
-   setChats((prevChats) =>
-  prevChats.map((chat) => {
-    if (chat.id !== activeChatId) {
-      return chat;
-    }
-
-    const hasUserMessage = chat.messages.some(
-      (message) => message.role === "user"
-    );
-
-    return {
-      ...chat,
-      title: !hasUserMessage ? newTitle : chat.title,
-      messages: [...chat.messages, newMessage],
-    };
-  })
-);
-
     setIsLoading(true);
+
+    const newTitle =
+      newMessage.content.length > 30
+        ? `${newMessage.content.slice(0, 30)}...`
+        : newMessage.content;
+
+    let targetChatId = activeChatId;
+
+    if (!targetChatId) {
+      targetChatId = crypto.randomUUID();
+
+      const newChat = {
+        id: targetChatId,
+        title: newTitle,
+        messages: [newMessage],
+      };
+
+      setChats((prevChats) => [...prevChats, newChat]);
+      setActiveChatId(targetChatId);
+    } else {
+      setChats((prevChats) =>
+        prevChats.map((chat) => {
+          if (chat.id !== targetChatId) {
+            return chat;
+          }
+
+          const hasUserMessage = chat.messages.some(
+            (message) => message.role === "user"
+          );
+
+          return {
+            ...chat,
+            title: !hasUserMessage
+              ? newTitle
+              : chat.title,
+            messages: [...chat.messages, newMessage],
+          };
+        })
+      );
+    }
 
     try {
       const reply = await getAIResponse(newMessage.content);
@@ -74,7 +85,7 @@ function App() {
 
       setChats((prevChats) =>
         prevChats.map((chat) =>
-          chat.id === activeChatId
+          chat.id === targetChatId
             ? {
                 ...chat,
                 messages: [...chat.messages, aiMessage],
@@ -90,31 +101,21 @@ function App() {
     }
   }
 
-  // Create a new chat
+  // Open a blank chat without saving it
   function handleNewChat() {
     setError("");
     setIsLoading(false);
-
-    const newChat = {
-      id: crypto.randomUUID(),
-      title: "New Chat",
-      messages: [
-        {
-          id: crypto.randomUUID(),
-          role: "assistant",
-          content: "Hi, I am your AI assistant. How can I help you today?",
-        },
-      ],
-    };
-
-    setChats((prevChats) => [...prevChats, newChat]);
-    setActiveChatId(newChat.id);
+    setActiveChatId(null);
   }
 
   // Clear the currently active chat
   function handleClearChat() {
     setError("");
     setIsLoading(false);
+
+    if (!activeChatId) {
+      return;
+    }
 
     setChats((prevChats) =>
       prevChats.map((chat) =>
@@ -128,47 +129,37 @@ function App() {
     );
   }
 
-  // function to hanldeSelectChat
-
-  function handleSelectChat(chatId){
-   setActiveChatId(chatId);
+  // Select a chat
+  function handleSelectChat(chatId) {
+    setActiveChatId(chatId);
   }
 
-  // function to delete chat ============ //
-  function handleDeleteChat(chatId){
-setChats((prevChats)=>{
-  const remainingChats = prevChats.filter((chat)=>chat.id!==chatId);
+  // Delete a chat
+  function handleDeleteChat(chatId) {
+    setError("");
+    setIsLoading(false);
 
-  if (remainingChats.length === 0) {
-      const newChat = {
-        id: crypto.randomUUID(),
-        title: "New Chat",
-        messages: [
-          {
-            id: crypto.randomUUID(),
-            role: "assistant",
-            content: "Hi, I am your AI assistant. How can I help you today?",
-          },
-        ],
-      };
+    setChats((prevChats) => {
+      const remainingChats = prevChats.filter(
+        (chat) => chat.id !== chatId
+      );
 
-    setActiveChatId(newChat.id);
+      if (chatId === activeChatId) {
+        setActiveChatId(
+          remainingChats[0]?.id ?? null
+        );
+      }
 
-    return [newChat];
-  }
-
-  if(chatId === activeChatId){
-    setActiveChatId(remainingChats[0].id)
-  }
-  return remainingChats;
-});
-
-
+      return remainingChats;
+    });
   }
 
   // Save chats whenever the chats state changes
   useEffect(() => {
-    localStorage.setItem("chats", JSON.stringify(chats));
+    localStorage.setItem(
+      "chats",
+      JSON.stringify(chats)
+    );
   }, [chats]);
 
   return (
@@ -177,12 +168,12 @@ setChats((prevChats)=>{
 
       <main className="app-layout">
         <Sidebar
-          chats = {chats}
-          activeChatId = {activeChatId}
-          onSelectChat = {handleSelectChat}
+          chats={chats}
+          activeChatId={activeChatId}
+          onSelectChat={handleSelectChat}
           onNewChat={handleNewChat}
           onClearChat={handleClearChat}
-          onDeleteChat = {handleDeleteChat}
+          onDeleteChat={handleDeleteChat}
         />
 
         <ChatWindow

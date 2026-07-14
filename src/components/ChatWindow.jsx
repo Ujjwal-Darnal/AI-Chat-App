@@ -1,29 +1,55 @@
 import MessageList from "./MessageList";
-import LoadingIndicator from "./LoadingIndicator";
 import ChatInput from "./ChatInput";
-import { useEffect, useRef } from "react";
-import "../styles/ChatWindow.css"
-function ChatWindow({ messages, onAddMessage, isLoading, error }) {
+import LoadingIndicator from "./LoadingIndicator";
+import "../styles/ChatWindow.css";
 
-    const bottomRef = useRef(null);
+function ChatWindow({
+  messages,
+  onAddMessage,
+  isLoading,
+  error,
+}) {
+  const hasMessages = messages.length > 0;
 
-    useEffect(() => {
-        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [messages, isLoading]);
+  return (
+    <section className="chat-window">
+      <div className="chat-content">
+        {hasMessages ? (
+          <MessageList messages={messages} />
+        ) : (
+          <div className="chat-empty-state">
+            <div className="empty-state-icon">AI</div>
 
+            <h1>How can I help you today?</h1>
 
-    return (
-        <section className="chat-window">
-            <MessageList messages={messages} />
-            {isLoading && <LoadingIndicator />}
+            <p>
+              Ask a question, explore an idea, or get help with
+              your code. Start by typing a message below.
+            </p>
 
-            {error && <p className="error-message">{error}</p>}
+            <div className="example-prompts">
+              <span>Explain a difficult concept</span>
+              <span>Help debug my code</span>
+              <span>Prepare for an interview</span>
+            </div>
+          </div>
+        )}
 
-            <div ref={bottomRef}></div>
+        {isLoading && <LoadingIndicator />}
 
-            <ChatInput onAddMessage={onAddMessage} isLoading = {isLoading}/>
+        {error && (
+          <p className="chat-error" role="alert">
+            {error}
+          </p>
+        )}
+      </div>
 
-        </section>
-    )
+      <ChatInput
+        onAddMessage={onAddMessage}
+        isLoading={isLoading}
+      />
+    </section>
+  );
 }
+
 export default ChatWindow;
