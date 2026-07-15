@@ -8,13 +8,39 @@ function Sidebar({
   chats,
   activeChatId,
   onDeleteChat,
+  onRenameChat,
 }) {
   const [openMenuId, setOpenMenuId] = useState(null);
+  const [editingChatId, setEditingChatId] = useState(null);
+  const [editedTitle, setEditedTitle] = useState("");
 
   function handleToggleMenu(chatId) {
     setOpenMenuId((currentId) =>
       currentId === chatId ? null : chatId
     );
+  }
+
+  function handleStartRename(chat) {
+    setEditingChatId(chat.id);
+    setEditedTitle(chat.title);
+    setOpenMenuId(null);
+  }
+
+  function handleSaveRename(chatId) {
+    const trimmedTitle = editedTitle.trim();
+
+    if (!trimmedTitle) {
+      return;
+    }
+
+    onRenameChat(chatId, trimmedTitle);
+    setEditingChatId(null);
+    setEditedTitle("");
+  }
+
+  function handleCancelRename() {
+    setEditingChatId(null);
+    setEditedTitle("");
   }
 
   return (
@@ -38,14 +64,35 @@ function Sidebar({
             }
             key={chat.id}
           >
-            <button
-              type="button"
-              className="chat-item"
-              onClick={() => onSelectChat(chat.id)}
-              title={chat.title}
-            >
-              {chat.title}
-            </button>
+            {editingChatId === chat.id ? (
+              <input
+                type="text"
+                className="chat-rename-input"
+                value={editedTitle}
+                onChange={(event) =>
+                  setEditedTitle(event.target.value)
+                }
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    handleSaveRename(chat.id);
+                  }
+
+                  if (event.key === "Escape") {
+                    handleCancelRename();
+                  }
+                }}
+                autoFocus
+              />
+            ) : (
+              <button
+                type="button"
+                className="chat-item"
+                onClick={() => onSelectChat(chat.id)}
+                title={chat.title}
+              >
+                {chat.title}
+              </button>
+            )}
 
             <div className="chat-menu">
               <button
@@ -66,6 +113,14 @@ function Sidebar({
                       : "chat-menu-dropdown open-up"
                   }
                 >
+                  <button
+                    type="button"
+                    className="chat-menu-action"
+                    onClick={() => handleStartRename(chat)}
+                  >
+                    Rename
+                  </button>
+
                   <button
                     type="button"
                     className="chat-menu-action danger"

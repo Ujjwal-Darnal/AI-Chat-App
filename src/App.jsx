@@ -154,6 +154,15 @@ function App() {
     });
   }
 
+  //rename a chat
+  function handleRenameChat(chatId,newTitle){
+ 
+    setChats((prevChats)=>prevChats.map((chat)=>
+    chat.id===chatId?{
+      ...chat,title:newTitle,
+    }:chat))
+
+  }
   // Save chats whenever the chats state changes
   useEffect(() => {
     localStorage.setItem(
@@ -174,6 +183,7 @@ function App() {
           onNewChat={handleNewChat}
           onClearChat={handleClearChat}
           onDeleteChat={handleDeleteChat}
+          onRenameChat = {handleRenameChat}
         />
 
         <ChatWindow
