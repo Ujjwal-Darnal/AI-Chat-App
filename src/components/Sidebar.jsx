@@ -1,5 +1,5 @@
 import "../styles/Sidebar.css";
-import { useState } from "react";
+import { useState,useEffect,useRef } from "react";
 
 function Sidebar({
   onNewChat,
@@ -13,6 +13,7 @@ function Sidebar({
   const [openMenuId, setOpenMenuId] = useState(null);
   const [editingChatId, setEditingChatId] = useState(null);
   const [editedTitle, setEditedTitle] = useState("");
+  const menuRef = useRef(null);
 
   function handleToggleMenu(chatId) {
     setOpenMenuId((currentId) =>
@@ -43,8 +44,26 @@ function Sidebar({
     setEditedTitle("");
   }
 
+  useEffect(()=>{
+    function handleClickOutside(event){
+      if(
+        menuRef.current && !menuRef.current.contains(event.target)
+      ){
+        setOpenMenuId(null);
+      }
+    }
+     document.addEventListener("mousedown",handleClickOutside);
+
+     return ()=>{
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside
+      );
+     };
+  },[]);
+ 
   return (
-    <aside className="sidebar">
+    <aside className="sidebar" ref={menuRef}>
       <button
         type="button"
         className="new-chat-button"
