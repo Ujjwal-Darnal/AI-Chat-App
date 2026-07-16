@@ -27,3 +27,57 @@
     max-width: 90%;
   }
 }
+/* ===========================
+   Message Actions
+=========================== */
+
+.message-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+/* ===========================
+   Copy Button
+=========================== */
+
+.copy-message-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 6px 10px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: transparent;
+
+  color: #666;
+  font-size: 13px;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.copy-message-button:hover {
+  background: #f3f3f3;
+  color: #111;
+}
+
+.copy-message-button:active {
+  transform: scale(0.97);
+}
+
+.copy-message-button svg {
+  flex-shrink: 0;
+}
+
+.copy-message-button span {
+  line-height: 1;
+}
