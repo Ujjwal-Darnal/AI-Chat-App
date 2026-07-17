@@ -28,7 +28,7 @@ function ChatInput({onAddMessage,isLoading}){
 
             <button 
             type="submit"
-            disabled = {isLoading}
+            disabled = {isLoading || !input.trim()}
             >{isLoading? "Thinking...":"Send"}</button>
         </form>
     )
