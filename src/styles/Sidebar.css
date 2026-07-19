@@ -11,6 +11,25 @@
   flex-direction: column;
   padding: 12px;
   gap: 12px;
+  overflow: hidden;
+  transition:
+    width 0.25s ease,
+    min-width 0.25s ease,
+    padding 0.25s ease,
+    transform 0.25s ease;
+}
+
+.sidebar-open {
+  width: 280px;
+  min-width: 280px;
+}
+
+.sidebar-closed {
+  width: 0;
+  min-width: 0;
+  padding-left: 0;
+  padding-right: 0;
+  border-right: none;
 }
 
 /* ===========================
@@ -134,23 +153,18 @@
   position: absolute;
   right: 0;
   z-index: 9999;
-
   width: 140px;
   padding: 4px;
-
   background: white;
   border: 1px solid #ddd;
   border-radius: 8px;
-
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 }
 
-/* First chat opens downward */
 .chat-menu-dropdown.open-down {
   top: calc(100% + 6px);
 }
 
-/* Other chats open upward */
 .chat-menu-dropdown.open-up {
   bottom: calc(100% + 6px);
 }
@@ -178,6 +192,10 @@
   background: #fdeaea;
 }
 
+/* ===========================
+   Rename Input
+=========================== */
+
 .chat-rename-input {
   flex: 1;
   min-width: 0;
@@ -192,4 +210,36 @@
 
 .chat-rename-input:focus {
   box-shadow: 0 0 0 2px rgba(16, 163, 127, 0.15);
+}
+
+/* ===========================
+   Mobile Sidebar
+=========================== */
+
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 4rem;
+    left: 0;
+    bottom: 0;
+
+    width: min(85vw, 320px);
+    min-width: 0;
+    box-sizing: border-box;
+
+    z-index: 1000;
+    padding: 12px;
+    border-right: 1px solid #ddd;
+
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+  }
+
+  .sidebar-open {
+    transform: translateX(0);
+  }
+
+  .sidebar-closed {
+    transform: translateX(-100%);
+  }
 }

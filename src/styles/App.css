@@ -24,8 +24,41 @@ body {
   overflow: hidden;
 }
 
+/* Backdrop is not used on desktop */
+.sidebar-backdrop {
+  display: none;
+}
+
+/* Mobile layout */
 @media (max-width: 768px) {
-  .app-layout {
-    flex-direction: column;
+
+  .sidebar-backdrop {
+    position: fixed;
+    top: 4rem;
+    right: 0;
+    bottom: 0;
+    left: 0;
+
+    display: block;
+    padding: 0;
+    border: none;
+    background: rgba(0, 0, 0, 0.4);
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+
+    z-index: 900;
+    cursor: pointer;
+
+    transition:
+      opacity 0.25s ease,
+      visibility 0.25s ease;
+  }
+
+  .sidebar-backdrop-visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
   }
 }

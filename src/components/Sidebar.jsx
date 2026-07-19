@@ -1,5 +1,5 @@
 import "../styles/Sidebar.css";
-import { useState,useEffect,useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 function Sidebar({
   onNewChat,
@@ -9,6 +9,7 @@ function Sidebar({
   activeChatId,
   onDeleteChat,
   onRenameChat,
+  isSidebarOpen,
 }) {
   const [openMenuId, setOpenMenuId] = useState(null);
   const [editingChatId, setEditingChatId] = useState(null);
@@ -44,26 +45,38 @@ function Sidebar({
     setEditedTitle("");
   }
 
-  useEffect(()=>{
-    function handleClickOutside(event){
-      if(
-        menuRef.current && !menuRef.current.contains(event.target)
-      ){
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target)
+      ) {
         setOpenMenuId(null);
       }
     }
-     document.addEventListener("mousedown",handleClickOutside);
 
-     return ()=>{
+    document.addEventListener(
+      "mousedown",
+      handleClickOutside
+    );
+
+    return () => {
       document.removeEventListener(
         "mousedown",
         handleClickOutside
       );
-     };
-  },[]);
- 
+    };
+  }, []);
+
   return (
-    <aside className="sidebar" ref={menuRef}>
+    <aside
+      className={`sidebar ${
+        isSidebarOpen
+          ? "sidebar-open"
+          : "sidebar-closed"
+      }`}
+      ref={menuRef}
+    >
       <button
         type="button"
         className="new-chat-button"
@@ -106,7 +119,9 @@ function Sidebar({
               <button
                 type="button"
                 className="chat-item"
-                onClick={() => onSelectChat(chat.id)}
+                onClick={() =>
+                  onSelectChat(chat.id)
+                }
                 title={chat.title}
               >
                 {chat.title}
@@ -117,9 +132,13 @@ function Sidebar({
               <button
                 type="button"
                 className="chat-menu-trigger"
-                onClick={() => handleToggleMenu(chat.id)}
+                onClick={() =>
+                  handleToggleMenu(chat.id)
+                }
                 aria-label={`Open actions for ${chat.title}`}
-                aria-expanded={openMenuId === chat.id}
+                aria-expanded={
+                  openMenuId === chat.id
+                }
               >
                 ⋮
               </button>
@@ -135,7 +154,9 @@ function Sidebar({
                   <button
                     type="button"
                     className="chat-menu-action"
-                    onClick={() => handleStartRename(chat)}
+                    onClick={() =>
+                      handleStartRename(chat)
+                    }
                   >
                     Rename
                   </button>

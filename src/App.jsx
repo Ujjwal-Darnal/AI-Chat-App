@@ -22,6 +22,7 @@ function App() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const activeChat = chats.find(
     (chat) => chat.id === activeChatId
@@ -106,6 +107,10 @@ function App() {
     setError("");
     setIsLoading(false);
     setActiveChatId(null);
+
+    if (window.innerWidth <= 768) {
+      setIsSidebarOpen(false);
+    }
   }
 
   // Clear the currently active chat
@@ -132,6 +137,10 @@ function App() {
   // Select a chat
   function handleSelectChat(chatId) {
     setActiveChatId(chatId);
+
+    if (window.innerWidth <= 768) {
+      setIsSidebarOpen(false);
+    }
   }
 
   // Delete a chat
@@ -154,15 +163,20 @@ function App() {
     });
   }
 
-  //rename a chat
-  function handleRenameChat(chatId,newTitle){
- 
-    setChats((prevChats)=>prevChats.map((chat)=>
-    chat.id===chatId?{
-      ...chat,title:newTitle,
-    }:chat))
-
+  // Rename a chat
+  function handleRenameChat(chatId, newTitle) {
+    setChats((prevChats) =>
+      prevChats.map((chat) =>
+        chat.id === chatId
+          ? {
+              ...chat,
+              title: newTitle,
+            }
+          : chat
+      )
+    );
   }
+
   // Save chats whenever the chats state changes
   useEffect(() => {
     localStorage.setItem(
@@ -171,9 +185,22 @@ function App() {
     );
   }, [chats]);
 
+  function handleToggleSidebar() {
+    setIsSidebarOpen(
+      (previousState) => !previousState
+    );
+  }
+
+  function handleCloseSidebar() {
+    setIsSidebarOpen(false);
+  }
+
   return (
     <div className="app">
-      <Header />
+      <Header
+        isSidebarOpen={isSidebarOpen}
+        onToggleSidebar={handleToggleSidebar}
+      />
 
       <main className="app-layout">
         <Sidebar
@@ -183,7 +210,20 @@ function App() {
           onNewChat={handleNewChat}
           onClearChat={handleClearChat}
           onDeleteChat={handleDeleteChat}
-          onRenameChat = {handleRenameChat}
+          onRenameChat={handleRenameChat}
+          isSidebarOpen={isSidebarOpen}
+        />
+
+        <button
+          type="button"
+          className={`sidebar-backdrop ${
+            isSidebarOpen
+              ? "sidebar-backdrop-visible"
+              : ""
+          }`}
+          onClick={handleCloseSidebar}
+          aria-label="Close sidebar"
+          tabIndex={isSidebarOpen ? 0 : -1}
         />
 
         <ChatWindow
