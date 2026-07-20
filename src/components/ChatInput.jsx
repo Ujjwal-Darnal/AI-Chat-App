@@ -1,8 +1,27 @@
-import {useState} from "react";
+import {useState,useRef} from "react";
 import "../styles/ChatInput.css"
 function ChatInput({onAddMessage,isLoading}){
 
     const[input,setInput] =useState("");
+    const textareaRef = useRef(null);
+
+    function handleInputChange(e){
+        setInput(e.target.value)
+        const textarea = e.target;
+
+        textarea.style.height = "auto";
+        textarea.style.height = `${textarea.scrollHeight}px`;
+    }
+ function handleKeyDown(e){
+    if(e.key === "Enter" && !e.shiftKey){
+        e.preventDefault();
+
+        if(!input.trim()|| isLoading){
+            return;
+        }
+        handleSubmit(e);
+    }
+ }
 
     function handleSubmit(e){
         e.preventDefault();
@@ -16,15 +35,23 @@ function ChatInput({onAddMessage,isLoading}){
         };
         onAddMessage(newMessage);
         setInput("");
+
+        requestAnimationFrame(()=>{
+            if(textareaRef.current){
+                textareaRef.current.style.height = "auto";
+            }
+        })
     }
     return(
         <form className="chat-input" onSubmit={handleSubmit} >
 
-            <input 
-            type="text"
+            <textarea
+           ref={textareaRef}
             value = {input}
             placeholder="Ask anything..."
-            onChange = {(e)=>setInput(e.target.value)} />
+            onChange = {handleInputChange}
+            rows={1}
+            aria-label="Message" />
 
             <button 
             type="submit"
