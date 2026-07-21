@@ -28,7 +28,7 @@ function App() {
     (chat) => chat.id === activeChatId
   );
 
-  const messages = activeChat ? activeChat.messages : [];
+  const messages = activeChat?.messages ?? [];
 
   // Add the user's message and request an AI response
   async function handleAddMessage(newMessage) {
@@ -41,19 +41,34 @@ function App() {
         : newMessage.content;
 
     let targetChatId = activeChatId;
+    let conversationMessages = [];
 
     if (!targetChatId) {
       targetChatId = crypto.randomUUID();
+      conversationMessages = [newMessage];
 
       const newChat = {
         id: targetChatId,
         title: newTitle,
-        messages: [newMessage],
+        messages: conversationMessages,
       };
 
-      setChats((prevChats) => [...prevChats, newChat]);
+      setChats((prevChats) => [
+        ...prevChats,
+        newChat,
+      ]);
+
       setActiveChatId(targetChatId);
     } else {
+      const targetChat = chats.find(
+        (chat) => chat.id === targetChatId
+      );
+
+      conversationMessages = [
+        ...(targetChat?.messages ?? []),
+        newMessage,
+      ];
+
       setChats((prevChats) =>
         prevChats.map((chat) => {
           if (chat.id !== targetChatId) {
@@ -66,17 +81,24 @@ function App() {
 
           return {
             ...chat,
-            title: !hasUserMessage
-              ? newTitle
-              : chat.title,
-            messages: [...chat.messages, newMessage],
+            title: hasUserMessage
+              ? chat.title
+              : newTitle,
+            messages: conversationMessages,
           };
         })
       );
     }
 
     try {
-      const reply = await getAIResponse(newMessage.content);
+      const apiMessages = conversationMessages.map(
+        (message) => ({
+          role: message.role,
+          content: message.content,
+        })
+      );
+
+      const reply = await getAIResponse(apiMessages);
 
       const aiMessage = {
         id: crypto.randomUUID(),
@@ -89,14 +111,19 @@ function App() {
           chat.id === targetChatId
             ? {
                 ...chat,
-                messages: [...chat.messages, aiMessage],
+                messages: [
+                  ...chat.messages,
+                  aiMessage,
+                ],
               }
             : chat
         )
       );
     } catch (error) {
       console.error(error);
-      setError("Something went wrong. Please try again.");
+      setError(
+        "Something went wrong. Please try again."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -137,6 +164,7 @@ function App() {
   // Select a chat
   function handleSelectChat(chatId) {
     setActiveChatId(chatId);
+    setError("");
 
     if (window.innerWidth <= 768) {
       setIsSidebarOpen(false);
@@ -177,7 +205,7 @@ function App() {
     );
   }
 
-  // Save chats whenever the chats state changes
+  // Save chats whenever chats state changes
   useEffect(() => {
     localStorage.setItem(
       "chats",
