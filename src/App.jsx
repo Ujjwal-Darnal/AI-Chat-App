@@ -1,7 +1,7 @@
 import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
 import ChatWindow from "./components/ChatWindow";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./styles/App.css";
 import { getAIResponse } from "./services/aiService";
 
@@ -35,6 +35,9 @@ function App() {
   const [error, setError] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+  // Store the controller for the currently active AI request
+  const abortControllerRef = useRef(null);
+
   const activeChat = chats.find(
     (chat) => chat.id === activeChatId
   );
@@ -42,145 +45,170 @@ function App() {
   const messages = activeChat?.messages ?? [];
 
   // Add the user's message and stream the AI response
-async function handleAddMessage(newMessage) {
-  setError("");
-  setIsLoading(true);
+  async function handleAddMessage(newMessage) {
+    setError("");
+    setIsLoading(true);
 
-  const newTitle =
-    newMessage.content.length > 30
-      ? `${newMessage.content.slice(0, 30)}...`
-      : newMessage.content;
+    // Create a controller so the request can be stopped
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
 
-  let targetChatId = activeChatId;
-  let conversationMessages = [];
+    const newTitle =
+      newMessage.content.length > 30
+        ? `${newMessage.content.slice(0, 30)}...`
+        : newMessage.content;
 
-  if (!targetChatId) {
-    targetChatId = crypto.randomUUID();
-    conversationMessages = [newMessage];
+    let targetChatId = activeChatId;
+    let conversationMessages = [];
 
-    const newChat = {
-      id: targetChatId,
-      title: newTitle,
-      messages: conversationMessages,
-    };
+    if (!targetChatId) {
+      targetChatId = crypto.randomUUID();
+      conversationMessages = [newMessage];
 
-    setChats((prevChats) => [
-      ...prevChats,
-      newChat,
-    ]);
+      const newChat = {
+        id: targetChatId,
+        title: newTitle,
+        messages: conversationMessages,
+      };
 
-    setActiveChatId(targetChatId);
-  } else {
-    const targetChat = chats.find(
-      (chat) => chat.id === targetChatId
-    );
+      setChats((prevChats) => [
+        ...prevChats,
+        newChat,
+      ]);
 
-    conversationMessages = [
-      ...(targetChat?.messages ?? []),
-      newMessage,
-    ];
+      setActiveChatId(targetChatId);
+    } else {
+      const targetChat = chats.find(
+        (chat) => chat.id === targetChatId
+      );
 
-    setChats((prevChats) =>
-      prevChats.map((chat) => {
-        if (chat.id !== targetChatId) {
-          return chat;
-        }
+      conversationMessages = [
+        ...(targetChat?.messages ?? []),
+        newMessage,
+      ];
 
-        const hasUserMessage = chat.messages.some(
-          (message) => message.role === "user"
-        );
-
-        return {
-          ...chat,
-          title: hasUserMessage
-            ? chat.title
-            : newTitle,
-          messages: conversationMessages,
-        };
-      })
-    );
-  }
-
-  // Create one empty assistant message before streaming starts
-  const assistantMessageId = crypto.randomUUID();
-
-  const emptyAssistantMessage = {
-    id: assistantMessageId,
-    role: "assistant",
-    content: "",
-  };
-
-  setChats((prevChats) =>
-    prevChats.map((chat) =>
-      chat.id === targetChatId
-        ? {
-            ...chat,
-            messages: [
-              ...chat.messages,
-              emptyAssistantMessage,
-            ],
-          }
-        : chat
-    )
-  );
-
-  try {
-    const apiMessages = conversationMessages.map(
-      (message) => ({
-        role: message.role,
-        content: message.content,
-      })
-    );
-
-    await getAIResponse(apiMessages, (chunk) => {
-      // Append every new chunk to the same assistant message
       setChats((prevChats) =>
         prevChats.map((chat) => {
           if (chat.id !== targetChatId) {
             return chat;
           }
 
+          const hasUserMessage = chat.messages.some(
+            (message) => message.role === "user"
+          );
+
           return {
             ...chat,
-            messages: chat.messages.map((message) =>
-              message.id === assistantMessageId
-                ? {
-                    ...message,
-                    content: message.content + chunk,
-                  }
-                : message
-            ),
+            title: hasUserMessage
+              ? chat.title
+              : newTitle,
+            messages: conversationMessages,
           };
         })
       );
-    });
-  } catch (error) {
-    console.error(error);
+    }
 
-    // Remove the empty or partially generated message after failure
+    // Create one empty assistant message before streaming starts
+    const assistantMessageId = crypto.randomUUID();
+
+    const emptyAssistantMessage = {
+      id: assistantMessageId,
+      role: "assistant",
+      content: "",
+    };
+
     setChats((prevChats) =>
       prevChats.map((chat) =>
         chat.id === targetChatId
           ? {
               ...chat,
-              messages: chat.messages.filter(
-                (message) =>
-                  message.id !== assistantMessageId
-              ),
+              messages: [
+                ...chat.messages,
+                emptyAssistantMessage,
+              ],
             }
           : chat
       )
     );
 
-    setError(
-      "Something went wrong. Please try again."
-    );
-  } finally {
-    setIsLoading(false);
+    try {
+      const apiMessages = conversationMessages.map(
+        (message) => ({
+          role: message.role,
+          content: message.content,
+        })
+      );
+
+      await getAIResponse(
+        apiMessages,
+        (chunk) => {
+          // Append each streamed chunk to the same assistant message
+          setChats((prevChats) =>
+            prevChats.map((chat) => {
+              if (chat.id !== targetChatId) {
+                return chat;
+              }
+
+              return {
+                ...chat,
+                messages: chat.messages.map((message) =>
+                  message.id === assistantMessageId
+                    ? {
+                        ...message,
+                        content:
+                          message.content + chunk,
+                      }
+                    : message
+                ),
+              };
+            })
+          );
+        },
+        controller.signal
+      );
+    } catch (error) {
+      // Stopping the request is intentional, so do not show an error
+      if (error.name === "AbortError") {
+        return;
+      }
+
+      console.error(error);
+
+      // Remove the assistant message when a real request error occurs
+      setChats((prevChats) =>
+        prevChats.map((chat) =>
+          chat.id === targetChatId
+            ? {
+                ...chat,
+                messages: chat.messages.filter(
+                  (message) =>
+                    message.id !== assistantMessageId
+                ),
+              }
+            : chat
+        )
+      );
+
+      setError(
+        "Something went wrong. Please try again."
+      );
+    } finally {
+      abortControllerRef.current = null;
+      setIsLoading(false);
+    }
   }
-}
+
+  // Stop the currently streaming AI response
+  function handleStopGenerating() {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+  }
+
   // Open a blank chat without saving it
   function handleNewChat() {
+    handleStopGenerating();
+
     setError("");
     setIsLoading(false);
     setActiveChatId(null);
@@ -192,6 +220,8 @@ async function handleAddMessage(newMessage) {
 
   // Clear the currently active chat
   function handleClearChat() {
+    handleStopGenerating();
+
     setError("");
     setIsLoading(false);
 
@@ -213,6 +243,8 @@ async function handleAddMessage(newMessage) {
 
   // Select a chat
   function handleSelectChat(chatId) {
+    handleStopGenerating();
+
     setActiveChatId(chatId);
     setError("");
 
@@ -223,6 +255,8 @@ async function handleAddMessage(newMessage) {
 
   // Delete a chat
   function handleDeleteChat(chatId) {
+    handleStopGenerating();
+
     setError("");
     setIsLoading(false);
 
@@ -319,6 +353,7 @@ async function handleAddMessage(newMessage) {
         <ChatWindow
           messages={messages}
           onAddMessage={handleAddMessage}
+          onStopGenerating={handleStopGenerating}
           isLoading={isLoading}
           error={error}
         />

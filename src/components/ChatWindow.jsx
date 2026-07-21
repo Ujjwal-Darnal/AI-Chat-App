@@ -6,6 +6,7 @@ import "../styles/ChatWindow.css";
 function ChatWindow({
   messages,
   onAddMessage,
+  onStopGenerating,
   isLoading,
   error,
 }) {
@@ -46,6 +47,7 @@ function ChatWindow({
 
       <ChatInput
         onAddMessage={onAddMessage}
+        onStopGenerating={onStopGenerating}
         isLoading={isLoading}
       />
     </section>

@@ -1,7 +1,11 @@
 import { useRef, useState } from "react";
 import "../styles/ChatInput.css";
 
-function ChatInput({ onAddMessage, isLoading }) {
+function ChatInput({
+  onAddMessage,
+  onStopGenerating,
+  isLoading,
+}) {
   const [input, setInput] = useState("");
   const textareaRef = useRef(null);
 
@@ -30,6 +34,7 @@ function ChatInput({ onAddMessage, isLoading }) {
     onAddMessage(newMessage);
     setInput("");
 
+    // Reset the textarea height after sending
     requestAnimationFrame(() => {
       if (textareaRef.current) {
         textareaRef.current.style.height = "auto";
@@ -59,14 +64,25 @@ function ChatInput({ onAddMessage, isLoading }) {
         onKeyDown={handleKeyDown}
         rows={1}
         aria-label="Message"
+        disabled={isLoading}
       />
 
-      <button
-        type="submit"
-        disabled={isLoading || !input.trim()}
-      >
-        {isLoading ? "Thinking..." : "Send"}
-      </button>
+      {isLoading ? (
+        <button
+          type="button"
+          className="stop-button"
+          onClick={onStopGenerating}
+        >
+          Stop
+        </button>
+      ) : (
+        <button
+          type="submit"
+          disabled={!input.trim()}
+        >
+          Send
+        </button>
+      )}
     </form>
   );
 }
