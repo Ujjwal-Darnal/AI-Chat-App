@@ -48,21 +48,34 @@ app.post("/api/chat", async (req, res) => {
       });
     }
 
-    const response = await client.responses.create({
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+
+    const stream = await client.responses.create({
       model: "gpt-4.1-mini",
       input: validMessages,
+      stream: true,
     });
 
-    res.json({
-      reply: response.output_text,
-    });
+    for await (const event of stream) {
+      if (event.type === "response.output_text.delta") {
+        res.write(event.delta);
+      }
+    }
+
+    res.end();
   } catch (error) {
     console.error(error);
 
-    res.status(500).json({
-      error:
-        "Something went wrong while generating AI response.",
-    });
+    if (!res.headersSent) {
+      return res.status(500).json({
+        error:
+          "Something went wrong while generating AI response.",
+      });
+    }
+
+    res.end();
   }
 });
 

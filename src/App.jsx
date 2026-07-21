@@ -16,9 +16,20 @@ function App() {
     return [];
   });
 
-  const [activeChatId, setActiveChatId] = useState(
-    chats[0]?.id ?? null
-  );
+  const [activeChatId, setActiveChatId] = useState(() => {
+    const savedActiveChatId =
+      localStorage.getItem("activeChatId");
+
+    const activeChatStillExists = chats.some(
+      (chat) => chat.id === savedActiveChatId
+    );
+
+    if (activeChatStillExists) {
+      return savedActiveChatId;
+    }
+
+    return chats[0]?.id ?? null;
+  });
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -30,105 +41,144 @@ function App() {
 
   const messages = activeChat?.messages ?? [];
 
-  // Add the user's message and request an AI response
-  async function handleAddMessage(newMessage) {
-    setError("");
-    setIsLoading(true);
+  // Add the user's message and stream the AI response
+async function handleAddMessage(newMessage) {
+  setError("");
+  setIsLoading(true);
 
-    const newTitle =
-      newMessage.content.length > 30
-        ? `${newMessage.content.slice(0, 30)}...`
-        : newMessage.content;
+  const newTitle =
+    newMessage.content.length > 30
+      ? `${newMessage.content.slice(0, 30)}...`
+      : newMessage.content;
 
-    let targetChatId = activeChatId;
-    let conversationMessages = [];
+  let targetChatId = activeChatId;
+  let conversationMessages = [];
 
-    if (!targetChatId) {
-      targetChatId = crypto.randomUUID();
-      conversationMessages = [newMessage];
+  if (!targetChatId) {
+    targetChatId = crypto.randomUUID();
+    conversationMessages = [newMessage];
 
-      const newChat = {
-        id: targetChatId,
-        title: newTitle,
-        messages: conversationMessages,
-      };
+    const newChat = {
+      id: targetChatId,
+      title: newTitle,
+      messages: conversationMessages,
+    };
 
-      setChats((prevChats) => [
-        ...prevChats,
-        newChat,
-      ]);
+    setChats((prevChats) => [
+      ...prevChats,
+      newChat,
+    ]);
 
-      setActiveChatId(targetChatId);
-    } else {
-      const targetChat = chats.find(
-        (chat) => chat.id === targetChatId
-      );
+    setActiveChatId(targetChatId);
+  } else {
+    const targetChat = chats.find(
+      (chat) => chat.id === targetChatId
+    );
 
-      conversationMessages = [
-        ...(targetChat?.messages ?? []),
-        newMessage,
-      ];
+    conversationMessages = [
+      ...(targetChat?.messages ?? []),
+      newMessage,
+    ];
 
+    setChats((prevChats) =>
+      prevChats.map((chat) => {
+        if (chat.id !== targetChatId) {
+          return chat;
+        }
+
+        const hasUserMessage = chat.messages.some(
+          (message) => message.role === "user"
+        );
+
+        return {
+          ...chat,
+          title: hasUserMessage
+            ? chat.title
+            : newTitle,
+          messages: conversationMessages,
+        };
+      })
+    );
+  }
+
+  // Create one empty assistant message before streaming starts
+  const assistantMessageId = crypto.randomUUID();
+
+  const emptyAssistantMessage = {
+    id: assistantMessageId,
+    role: "assistant",
+    content: "",
+  };
+
+  setChats((prevChats) =>
+    prevChats.map((chat) =>
+      chat.id === targetChatId
+        ? {
+            ...chat,
+            messages: [
+              ...chat.messages,
+              emptyAssistantMessage,
+            ],
+          }
+        : chat
+    )
+  );
+
+  try {
+    const apiMessages = conversationMessages.map(
+      (message) => ({
+        role: message.role,
+        content: message.content,
+      })
+    );
+
+    await getAIResponse(apiMessages, (chunk) => {
+      // Append every new chunk to the same assistant message
       setChats((prevChats) =>
         prevChats.map((chat) => {
           if (chat.id !== targetChatId) {
             return chat;
           }
 
-          const hasUserMessage = chat.messages.some(
-            (message) => message.role === "user"
-          );
-
           return {
             ...chat,
-            title: hasUserMessage
-              ? chat.title
-              : newTitle,
-            messages: conversationMessages,
+            messages: chat.messages.map((message) =>
+              message.id === assistantMessageId
+                ? {
+                    ...message,
+                    content: message.content + chunk,
+                  }
+                : message
+            ),
           };
         })
       );
-    }
+    });
+  } catch (error) {
+    console.error(error);
 
-    try {
-      const apiMessages = conversationMessages.map(
-        (message) => ({
-          role: message.role,
-          content: message.content,
-        })
-      );
+    // Remove the empty or partially generated message after failure
+    setChats((prevChats) =>
+      prevChats.map((chat) =>
+        chat.id === targetChatId
+          ? {
+              ...chat,
+              messages: chat.messages.filter(
+                (message) =>
+                  message.id !== assistantMessageId
+              ),
+            }
+          : chat
+      )
+    );
 
-      const reply = await getAIResponse(apiMessages);
-
-      const aiMessage = {
-        id: crypto.randomUUID(),
-        role: "assistant",
-        content: reply,
-      };
-
-      setChats((prevChats) =>
-        prevChats.map((chat) =>
-          chat.id === targetChatId
-            ? {
-                ...chat,
-                messages: [
-                  ...chat.messages,
-                  aiMessage,
-                ],
-              }
-            : chat
-        )
-      );
-    } catch (error) {
-      console.error(error);
-      setError(
-        "Something went wrong. Please try again."
-      );
-    } finally {
-      setIsLoading(false);
-    }
+    setError(
+      "Something went wrong. Please try again."
+    );
+  } finally {
+    setIsLoading(false);
   }
-
+}
   // Open a blank chat without saving it
   function handleNewChat() {
     setError("");
@@ -205,13 +255,25 @@ function App() {
     );
   }
 
-  // Save chats whenever chats state changes
+  // Save chats whenever chats change
   useEffect(() => {
     localStorage.setItem(
       "chats",
       JSON.stringify(chats)
     );
   }, [chats]);
+
+  // Save the currently active chat
+  useEffect(() => {
+    if (activeChatId) {
+      localStorage.setItem(
+        "activeChatId",
+        activeChatId
+      );
+    } else {
+      localStorage.removeItem("activeChatId");
+    }
+  }, [activeChatId]);
 
   function handleToggleSidebar() {
     setIsSidebarOpen(
