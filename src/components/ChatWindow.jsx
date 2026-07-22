@@ -7,6 +7,7 @@ function ChatWindow({
   messages,
   onAddMessage,
   onStopGenerating,
+  onRegenerateResponse,
   isLoading,
   error,
 }) {
@@ -16,22 +17,35 @@ function ChatWindow({
     <section className="chat-window">
       <div className="chat-content">
         {hasMessages ? (
-          <MessageList messages={messages} />
+          <MessageList
+            messages={messages}
+            onRegenerateResponse={
+              onRegenerateResponse
+            }
+            isLoading={isLoading}
+          />
         ) : (
           <div className="chat-empty-state">
-            <div className="empty-state-icon">AI</div>
+            <div className="empty-state-icon">
+              AI
+            </div>
 
             <h1>How can I help you today?</h1>
 
             <p>
-              Ask a question, explore an idea, or get help with
-              your code. Start by typing a message below.
+              Ask a question, explore an idea, or
+              get help with your code. Start by
+              typing a message below.
             </p>
 
             <div className="example-prompts">
-              <span>Explain a difficult concept</span>
+              <span>
+                Explain a difficult concept
+              </span>
               <span>Help debug my code</span>
-              <span>Prepare for an interview</span>
+              <span>
+                Prepare for an interview
+              </span>
             </div>
           </div>
         )}

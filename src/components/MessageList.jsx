@@ -2,8 +2,19 @@ import { useEffect, useRef } from "react";
 import MessageBubble from "./MessageBubble";
 import "../styles/ChatWindow.css";
 
-function MessageList({ messages }) {
+function MessageList({
+  messages,
+  onRegenerateResponse,
+  isLoading,
+}) {
   const bottomRef = useRef(null);
+
+  // Find the latest assistant message without mutating state
+  const lastAssistantMessageId = [...messages]
+    .reverse()
+    .find(
+      (message) => message.role === "assistant"
+    )?.id;
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({
@@ -17,6 +28,13 @@ function MessageList({ messages }) {
         <MessageBubble
           key={message.id}
           message={message}
+          isLatestAssistant={
+            message.id === lastAssistantMessageId
+          }
+          onRegenerateResponse={
+            onRegenerateResponse
+          }
+          isLoading={isLoading}
         />
       ))}
 

@@ -11,17 +11,22 @@
 
 .message.assistant {
   align-self: flex-start;
+  width: fit-content;
   max-width: min(85%, 850px);
+
   background: #ffffff;
   color: #2f2f2f;
+
   border: 1px solid #e5e5e5;
 }
 
 .message.user {
   align-self: flex-end;
+  width: fit-content;
   max-width: 70%;
+
   background: #d97757;
-  color: white;
+  color: #ffffff;
 }
 
 @media (max-width: 768px) {
@@ -36,7 +41,7 @@
 =========================== */
 
 .message-content {
-  overflow-wrap: break-word;
+  overflow-wrap: anywhere;
 }
 
 .message-content > :first-child {
@@ -85,13 +90,14 @@
   width: 100%;
   border-collapse: collapse;
   margin: 1rem 0;
+
   display: block;
   overflow-x: auto;
 }
 
 .message-content th,
 .message-content td {
-  border: 1px solid #ddd;
+  border: 1px solid #dddddd;
   padding: 0.7rem 1rem;
   text-align: left;
   white-space: nowrap;
@@ -108,7 +114,7 @@
 
 .message-content code {
   font-family: Consolas, monospace;
-  background: rgba(0,0,0,0.08);
+  background: rgba(0, 0, 0, 0.08);
   padding: 2px 5px;
   border-radius: 4px;
 }
@@ -133,10 +139,11 @@
 =========================== */
 
 .message-content blockquote {
-  border-left: 4px solid #10a37f;
-  padding-left: 1rem;
-  color: #666;
   margin: 1rem 0;
+  padding-left: 1rem;
+
+  border-left: 4px solid #10a37f;
+  color: #666666;
 }
 
 /* ===========================
@@ -145,37 +152,88 @@
 
 .message-actions {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
+  gap: 4px;
+
   margin-top: 8px;
 }
 
-.copy-message-button {
+.copy-message-button,
+.regenerate-message-button {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
 
-  border: none;
-  background: transparent;
-
-  color: #666;
-  font-size: 13px;
-  cursor: pointer;
-
   padding: 6px 8px;
+
+  border: none;
   border-radius: 8px;
 
-  transition: 0.2s;
+  background: transparent;
+  color: #666666;
+
+  font-family: inherit;
+  font-size: 13px;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    opacity 0.2s ease,
+    transform 0.1s ease;
 }
 
-.copy-message-button:hover {
+.copy-message-button:hover,
+.regenerate-message-button:hover {
   background: #f2f2f2;
-  color: #111;
+  color: #111111;
 }
 
-.copy-message-button:active {
+.copy-message-button:active,
+.regenerate-message-button:active {
   transform: scale(0.97);
 }
 
-.copy-message-button svg {
+.copy-message-button:focus-visible,
+.regenerate-message-button:focus-visible {
+  outline: 2px solid #d97757;
+  outline-offset: 2px;
+}
+
+.copy-message-button svg,
+.regenerate-message-button svg {
   flex-shrink: 0;
+}
+
+.regenerate-message-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.regenerate-message-button:disabled:hover {
+  background: transparent;
+  color: #666666;
+}
+
+.regenerate-message-button:disabled:active {
+  transform: none;
+}
+
+@media (max-width: 600px) {
+  .message-actions {
+    gap: 2px;
+  }
+
+  .copy-message-button,
+  .regenerate-message-button {
+    padding: 6px;
+  }
+
+  .copy-message-button span,
+  .regenerate-message-button span {
+    display: none;
+  }
 }

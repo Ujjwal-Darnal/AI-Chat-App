@@ -1,13 +1,19 @@
 import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
 import ChatWindow from "./components/ChatWindow";
-import { useEffect, useRef, useState } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import "./styles/App.css";
 import { getAIResponse } from "./services/aiService";
 
 function App() {
+  // Load saved chats from localStorage when the app first starts
   const [chats, setChats] = useState(() => {
-    const savedChats = localStorage.getItem("chats");
+    const savedChats =
+      localStorage.getItem("chats");
 
     if (savedChats) {
       return JSON.parse(savedChats);
@@ -16,53 +22,78 @@ function App() {
     return [];
   });
 
-  const [activeChatId, setActiveChatId] = useState(() => {
-    const savedActiveChatId =
-      localStorage.getItem("activeChatId");
+  // Restore the previously active chat if it still exists
+  const [activeChatId, setActiveChatId] =
+    useState(() => {
+      const savedActiveChatId =
+        localStorage.getItem("activeChatId");
 
-    const activeChatStillExists = chats.some(
-      (chat) => chat.id === savedActiveChatId
-    );
+      const activeChatStillExists = chats.some(
+        (chat) =>
+          chat.id === savedActiveChatId
+      );
 
-    if (activeChatStillExists) {
-      return savedActiveChatId;
-    }
+      if (activeChatStillExists) {
+        return savedActiveChatId;
+      }
 
-    return chats[0]?.id ?? null;
-  });
+      // Otherwise select the first saved chat
+      return chats[0]?.id ?? null;
+    });
 
-  const [isLoading, setIsLoading] = useState(false);
+  // Tracks whether an AI response is currently streaming
+  const [isLoading, setIsLoading] =
+    useState(false);
+
+  // Stores request error messages
   const [error, setError] = useState("");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  // Store the controller for the currently active AI request
+  // Controls the mobile sidebar
+  const [isSidebarOpen, setIsSidebarOpen] =
+    useState(false);
+
+  // Stores the current AbortController
+  // so the active request can be stopped
   const abortControllerRef = useRef(null);
 
+  // Find the currently selected chat
   const activeChat = chats.find(
     (chat) => chat.id === activeChatId
   );
 
+  // Use an empty array when no chat is selected
   const messages = activeChat?.messages ?? [];
 
-  // Add the user's message and stream the AI response
+  // Add a new user message and stream the AI response
   async function handleAddMessage(newMessage) {
     setError("");
     setIsLoading(true);
 
-    // Create a controller so the request can be stopped
+    // Create a controller for this request
+    // so the user can stop the response
     const controller = new AbortController();
+
     abortControllerRef.current = controller;
 
+    // Use the first user message as the chat title
     const newTitle =
       newMessage.content.length > 30
-        ? `${newMessage.content.slice(0, 30)}...`
+        ? `${newMessage.content.slice(
+            0,
+            30
+          )}...`
         : newMessage.content;
 
+    // The request may use an existing chat
+    // or create a new chat
     let targetChatId = activeChatId;
     let conversationMessages = [];
 
+    // Create a new chat only when the first
+    // user message is submitted
     if (!targetChatId) {
       targetChatId = crypto.randomUUID();
+
       conversationMessages = [newMessage];
 
       const newChat = {
@@ -78,10 +109,14 @@ function App() {
 
       setActiveChatId(targetChatId);
     } else {
+      // Find the active chat before adding
+      // the new user message
       const targetChat = chats.find(
         (chat) => chat.id === targetChatId
       );
 
+      // Include all previous messages
+      // so the AI keeps conversation context
       conversationMessages = [
         ...(targetChat?.messages ?? []),
         newMessage,
@@ -93,23 +128,33 @@ function App() {
             return chat;
           }
 
-          const hasUserMessage = chat.messages.some(
-            (message) => message.role === "user"
-          );
+          // Check whether this chat already
+          // contains a user message
+          const hasUserMessage =
+            chat.messages.some(
+              (message) =>
+                message.role === "user"
+            );
 
           return {
             ...chat,
+
+            // Only set the automatic title
+            // for the first user message
             title: hasUserMessage
               ? chat.title
               : newTitle,
+
             messages: conversationMessages,
           };
         })
       );
     }
 
-    // Create one empty assistant message before streaming starts
-    const assistantMessageId = crypto.randomUUID();
+    // Create an empty assistant message
+    // before streaming begins
+    const assistantMessageId =
+      crypto.randomUUID();
 
     const emptyAssistantMessage = {
       id: assistantMessageId,
@@ -117,6 +162,8 @@ function App() {
       content: "",
     };
 
+    // Add the empty assistant message
+    // to the correct chat
     setChats((prevChats) =>
       prevChats.map((chat) =>
         chat.id === targetChatId
@@ -132,58 +179,77 @@ function App() {
     );
 
     try {
-      const apiMessages = conversationMessages.map(
-        (message) => ({
-          role: message.role,
-          content: message.content,
-        })
-      );
+      // Remove local-only properties such as id
+      // before sending messages to the backend
+      const apiMessages =
+        conversationMessages.map(
+          (message) => ({
+            role: message.role,
+            content: message.content,
+          })
+        );
 
       await getAIResponse(
         apiMessages,
+
+        // This callback runs every time
+        // a new streamed chunk arrives
         (chunk) => {
-          // Append each streamed chunk to the same assistant message
           setChats((prevChats) =>
             prevChats.map((chat) => {
-              if (chat.id !== targetChatId) {
+              if (
+                chat.id !== targetChatId
+              ) {
                 return chat;
               }
 
               return {
                 ...chat,
-                messages: chat.messages.map((message) =>
-                  message.id === assistantMessageId
-                    ? {
-                        ...message,
-                        content:
-                          message.content + chunk,
-                      }
-                    : message
+                messages: chat.messages.map(
+                  (message) =>
+                    message.id ===
+                    assistantMessageId
+                      ? {
+                          ...message,
+
+                          // Add each new chunk
+                          // to the existing response
+                          content:
+                            message.content +
+                            chunk,
+                        }
+                      : message
                 ),
               };
             })
           );
         },
+
+        // Pass the abort signal to fetch
         controller.signal
       );
     } catch (error) {
-      // Stopping the request is intentional, so do not show an error
+      // AbortError means the user intentionally
+      // pressed Stop, so do not show an error
       if (error.name === "AbortError") {
         return;
       }
 
       console.error(error);
 
-      // Remove the assistant message when a real request error occurs
+      // Remove the empty or failed assistant message
+      // when a real request error occurs
       setChats((prevChats) =>
         prevChats.map((chat) =>
           chat.id === targetChatId
             ? {
                 ...chat,
-                messages: chat.messages.filter(
-                  (message) =>
-                    message.id !== assistantMessageId
-                ),
+                messages:
+                  chat.messages.filter(
+                    (message) =>
+                      message.id !==
+                      assistantMessageId
+                  ),
               }
             : chat
         )
@@ -193,7 +259,9 @@ function App() {
         "Something went wrong. Please try again."
       );
     } finally {
+      // Clear the finished request controller
       abortControllerRef.current = null;
+
       setIsLoading(false);
     }
   }
@@ -205,7 +273,190 @@ function App() {
     }
   }
 
-  // Open a blank chat without saving it
+  // Regenerate the latest assistant response
+  async function handleRegenerateResponse() {
+    // Prevent regeneration when no chat exists
+    // or another request is already running
+    if (!activeChatId || isLoading) {
+      return;
+    }
+
+    // Find the currently active chat
+    const currentChat = chats.find(
+      (chat) => chat.id === activeChatId
+    );
+
+    if (!currentChat) {
+      return;
+    }
+
+    // Find the position of the latest
+    // assistant response
+    const latestAssistantIndex =
+      currentChat.messages.findLastIndex(
+        (message) =>
+          message.role === "assistant"
+      );
+
+    // Stop if the chat has no assistant response
+    if (latestAssistantIndex === -1) {
+      return;
+    }
+
+    // Keep everything before the latest
+    // assistant response
+    //
+    // Example:
+    // user -> assistant -> user -> assistant
+    //
+    // After slice:
+    // user -> assistant -> user
+    const conversationMessages =
+      currentChat.messages.slice(
+        0,
+        latestAssistantIndex
+      );
+
+    // Get the last remaining message
+    const latestConversationMessage =
+      conversationMessages[
+        conversationMessages.length - 1
+      ];
+
+    // Regeneration should only happen when
+    // the message before the assistant response
+    // is a user message
+    if (
+      !latestConversationMessage ||
+      latestConversationMessage.role !==
+        "user"
+    ) {
+      return;
+    }
+
+    setError("");
+    setIsLoading(true);
+
+    // Create a new controller for
+    // the regeneration request
+    const controller =
+      new AbortController();
+
+    abortControllerRef.current = controller;
+
+    // Save the original messages
+    // so they can be restored after a real error
+    const originalMessages =
+      currentChat.messages;
+
+    // Create a new replacement
+    // assistant message
+    const assistantMessageId =
+      crypto.randomUUID();
+
+    const emptyAssistantMessage = {
+      id: assistantMessageId,
+      role: "assistant",
+      content: "",
+    };
+
+    // Remove the old assistant response
+    // and insert an empty replacement
+    setChats((prevChats) =>
+      prevChats.map((chat) =>
+        chat.id === activeChatId
+          ? {
+              ...chat,
+              messages: [
+                ...conversationMessages,
+                emptyAssistantMessage,
+              ],
+            }
+          : chat
+      )
+    );
+
+    try {
+      // Prepare the earlier conversation
+      // for the backend API
+      const apiMessages =
+        conversationMessages.map(
+          (message) => ({
+            role: message.role,
+            content: message.content,
+          })
+        );
+
+      await getAIResponse(
+        apiMessages,
+
+        // Append each streamed chunk
+        // to the replacement assistant message
+        (chunk) => {
+          setChats((prevChats) =>
+            prevChats.map((chat) => {
+              if (
+                chat.id !== activeChatId
+              ) {
+                return chat;
+              }
+
+              return {
+                ...chat,
+                messages: chat.messages.map(
+                  (message) =>
+                    message.id ===
+                    assistantMessageId
+                      ? {
+                          ...message,
+                          content:
+                            message.content +
+                            chunk,
+                        }
+                      : message
+                ),
+              };
+            })
+          );
+        },
+
+        controller.signal
+      );
+    } catch (error) {
+      // Keep the partial regenerated response
+      // when the user presses Stop
+      if (error.name === "AbortError") {
+        return;
+      }
+
+      console.error(error);
+
+      // Restore the previous assistant response
+      // when an actual request error happens
+      setChats((prevChats) =>
+        prevChats.map((chat) =>
+          chat.id === activeChatId
+            ? {
+                ...chat,
+                messages:
+                  originalMessages,
+              }
+            : chat
+        )
+      );
+
+      setError(
+        "Something went wrong while regenerating the response."
+      );
+    } finally {
+      abortControllerRef.current = null;
+
+      setIsLoading(false);
+    }
+  }
+
+  // Open the empty new-chat screen
+  // without storing a fake chat
   function handleNewChat() {
     handleStopGenerating();
 
@@ -213,12 +464,14 @@ function App() {
     setIsLoading(false);
     setActiveChatId(null);
 
+    // Close sidebar automatically on mobile
     if (window.innerWidth <= 768) {
       setIsSidebarOpen(false);
     }
   }
 
-  // Clear the currently active chat
+  // Remove every message from
+  // the currently active chat
   function handleClearChat() {
     handleStopGenerating();
 
@@ -241,19 +494,21 @@ function App() {
     );
   }
 
-  // Select a chat
+  // Change the currently selected chat
   function handleSelectChat(chatId) {
     handleStopGenerating();
 
     setActiveChatId(chatId);
     setError("");
 
+    // Close the sidebar after selecting
+    // a chat on mobile
     if (window.innerWidth <= 768) {
       setIsSidebarOpen(false);
     }
   }
 
-  // Delete a chat
+  // Delete one chat
   function handleDeleteChat(chatId) {
     handleStopGenerating();
 
@@ -261,10 +516,13 @@ function App() {
     setIsLoading(false);
 
     setChats((prevChats) => {
-      const remainingChats = prevChats.filter(
-        (chat) => chat.id !== chatId
-      );
+      const remainingChats =
+        prevChats.filter(
+          (chat) => chat.id !== chatId
+        );
 
+      // When the deleted chat was active,
+      // select another chat if one remains
       if (chatId === activeChatId) {
         setActiveChatId(
           remainingChats[0]?.id ?? null
@@ -275,8 +533,11 @@ function App() {
     });
   }
 
-  // Rename a chat
-  function handleRenameChat(chatId, newTitle) {
+  // Update the title of one chat
+  function handleRenameChat(
+    chatId,
+    newTitle
+  ) {
     setChats((prevChats) =>
       prevChats.map((chat) =>
         chat.id === chatId
@@ -289,7 +550,7 @@ function App() {
     );
   }
 
-  // Save chats whenever chats change
+  // Save chats whenever the chats state changes
   useEffect(() => {
     localStorage.setItem(
       "chats",
@@ -297,7 +558,7 @@ function App() {
     );
   }, [chats]);
 
-  // Save the currently active chat
+  // Save the selected chat whenever it changes
   useEffect(() => {
     if (activeChatId) {
       localStorage.setItem(
@@ -305,16 +566,21 @@ function App() {
         activeChatId
       );
     } else {
-      localStorage.removeItem("activeChatId");
+      localStorage.removeItem(
+        "activeChatId"
+      );
     }
   }, [activeChatId]);
 
+  // Open or close the mobile sidebar
   function handleToggleSidebar() {
     setIsSidebarOpen(
-      (previousState) => !previousState
+      (previousState) =>
+        !previousState
     );
   }
 
+  // Close the mobile sidebar
   function handleCloseSidebar() {
     setIsSidebarOpen(false);
   }
@@ -323,7 +589,9 @@ function App() {
     <div className="app">
       <Header
         isSidebarOpen={isSidebarOpen}
-        onToggleSidebar={handleToggleSidebar}
+        onToggleSidebar={
+          handleToggleSidebar
+        }
       />
 
       <main className="app-layout">
@@ -347,13 +615,20 @@ function App() {
           }`}
           onClick={handleCloseSidebar}
           aria-label="Close sidebar"
-          tabIndex={isSidebarOpen ? 0 : -1}
+          tabIndex={
+            isSidebarOpen ? 0 : -1
+          }
         />
 
         <ChatWindow
           messages={messages}
           onAddMessage={handleAddMessage}
-          onStopGenerating={handleStopGenerating}
+          onStopGenerating={
+            handleStopGenerating
+          }
+          onRegenerateResponse={
+            handleRegenerateResponse
+          }
           isLoading={isLoading}
           error={error}
         />
