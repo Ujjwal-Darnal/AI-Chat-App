@@ -1,124 +1,275 @@
+/* ===========================
+   Chat Window
+=========================== */
+
 .chat-window {
   flex: 1;
-  background-color: #faf9f5;
+  min-width: 0;
+
   display: flex;
   flex-direction: column;
+
   position: relative;
+
+  background: #faf9f5;
+  color: #252525;
 }
+
+/* ===========================
+   Scrollable Chat Area
+=========================== */
 
 .chat-content {
   flex: 1;
   min-height: 0;
+
   overflow-y: auto;
+  overflow-x: hidden;
+
+  scroll-behavior: smooth;
 }
+
+/* ===========================
+   Message List
+=========================== */
 
 .message-list {
-  flex: 1;
-  width: min(100%, 52rem);
+  width: min(100%, 50rem);
+  min-height: 100%;
+
   margin: 0 auto;
-  padding: 2rem 1rem 7rem;
+
+  padding: 1.75rem 1.25rem 7rem;
+
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  overflow-y: auto;
+
+  gap: 0.35rem;
 }
 
-/* Empty State */
+/* ===========================
+   Empty State
+=========================== */
 
 .chat-empty-state {
-  flex: 1;
+  width: 100%;
   max-width: 620px;
+
+  min-height: 100%;
+
   margin: 0 auto;
   padding: 2.5rem 1.5rem;
+
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+
   text-align: center;
 }
 
 .empty-state-icon {
   width: 3.5rem;
   height: 3.5rem;
+
   margin-bottom: 1.25rem;
+
   display: grid;
   place-items: center;
+
   border-radius: 1rem;
-  background: #0f9f7a;
+
+  background: #10a37f;
   color: #ffffff;
+
   font-size: 1.1rem;
   font-weight: 700;
+
+  box-shadow:
+    0 4px 12px rgba(16, 163, 127, 0.14);
 }
 
 .chat-empty-state h1 {
   margin: 0;
+
   color: #252525;
-  font-size: clamp(1.7rem, 3vw, 2.4rem);
+
+  font-size: clamp(1.7rem, 3vw, 2.35rem);
+  font-weight: 650;
   line-height: 1.2;
+
+  letter-spacing: -0.02em;
 }
 
 .chat-empty-state p {
   max-width: 520px;
-  margin: 0.9rem 0 1.5rem;
+
+  margin: 0.8rem 0 1.5rem;
+
   color: #6b6b6b;
+
   font-size: 0.95rem;
   line-height: 1.6;
 }
 
-/* Example Prompts */
+/* ===========================
+   Example Prompts
+=========================== */
 
 .example-prompts {
+  width: 100%;
+
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0.65rem;
+
+  gap: 0.6rem;
 }
 
 .example-prompts button {
-  padding: 0.6rem 0.9rem;
-  border: 1px solid #ddd9ce;
+  padding: 0.65rem 0.95rem;
+
+  border: 1px solid #deded9;
   border-radius: 999px;
-  background: #faf9f5;
-  color: #555555;
+
+  background: #ffffff;
+  color: #4f4f4f;
+
+  font-family: inherit;
   font-size: 0.85rem;
+
   cursor: pointer;
-  transition: background-color 0.2s ease;
+
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.1s ease;
 }
 
 .example-prompts button:hover {
-  background: #f0eee6;
+  background: #f1f6f4;
+  border-color: #c9ddd6;
+  color: #252525;
 }
 
-/* Status Messages */
+.example-prompts button:active {
+  transform: scale(0.98);
+}
+
+.example-prompts button:focus-visible {
+  outline: 2px solid #10a37f;
+  outline-offset: 2px;
+}
+
+/* ===========================
+   Status Messages
+=========================== */
 
 .loading-indicator,
 .error-message {
-  width: min(100%, 52rem);
+  width: min(100%, 48rem);
+
   margin: 0 auto;
-  padding: 0 1rem 1rem;
+
+  padding: 0 1.25rem 1rem;
+
+  box-sizing: border-box;
+
+  font-size: 0.9rem;
 }
 
 .loading-indicator {
-  color: #7c7568;
+  color: #6f6f6f;
 }
 
 .error-message {
-  color: #b3261e;
+  color: #b42318;
 }
 
-/* Responsive */
+/* ===========================
+   Scrollbar
+=========================== */
+
+.chat-content::-webkit-scrollbar {
+  width: 7px;
+}
+
+.chat-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-content::-webkit-scrollbar-thumb {
+  background: #d5d5d0;
+  border-radius: 999px;
+}
+
+.chat-content::-webkit-scrollbar-thumb:hover {
+  background: #bdbdb8;
+}
+
+/* ===========================
+   Tablet
+=========================== */
+
+@media (max-width: 768px) {
+  .message-list {
+    width: 100%;
+
+    padding:
+      1.5rem
+      1rem
+      6.5rem;
+
+    gap: 0.55rem;
+  }
+
+  .loading-indicator,
+  .error-message {
+    width: 100%;
+    padding-inline: 1rem;
+  }
+
+  .chat-empty-state {
+    padding: 2rem 1.25rem;
+  }
+}
+
+/* ===========================
+   Mobile
+=========================== */
 
 @media (max-width: 640px) {
+  .message-list {
+    padding:
+      1.25rem
+      0.9rem
+      6rem;
+  }
+
   .chat-empty-state {
     padding: 1.75rem 1.125rem;
   }
 
+  .chat-empty-state h1 {
+    font-size: 1.65rem;
+  }
+
+  .chat-empty-state p {
+    font-size: 0.9rem;
+  }
+
   .example-prompts {
     flex-direction: column;
-    width: 100%;
   }
 
   .example-prompts button {
     width: 100%;
+
+    padding: 0.75rem 1rem;
+
+    text-align: left;
+
+    border-radius: 12px;
   }
 }

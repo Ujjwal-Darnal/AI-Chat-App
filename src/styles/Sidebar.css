@@ -5,13 +5,20 @@
 .sidebar {
   width: 280px;
   min-width: 280px;
-  background: #f5f5f5;
-  border-right: 1px solid #ddd;
+  height: 100%;
+
   display: flex;
   flex-direction: column;
-  padding: 12px;
+
+  padding: 14px 12px;
   gap: 12px;
+
+  background: #f7f7f6;
+  border-right: 1px solid #e3e3df;
+
+  box-sizing: border-box;
   overflow: hidden;
+
   transition:
     width 0.25s ease,
     min-width 0.25s ease,
@@ -27,40 +34,71 @@
 .sidebar-closed {
   width: 0;
   min-width: 0;
+
   padding-left: 0;
   padding-right: 0;
+
   border-right: none;
 }
 
+
 /* ===========================
-   Buttons
+   Main Sidebar Buttons
 =========================== */
 
 .new-chat-button,
 .clear-chat-button {
   width: 100%;
-  padding: 12px;
-  border: none;
+
+  padding: 12px 14px;
+
   border-radius: 10px;
-  background: #10a37f;
-  color: white;
+
+  font-family: inherit;
   font-size: 15px;
   font-weight: 600;
+
   cursor: pointer;
+
   transition:
-    background 0.2s ease,
-    transform 0.2s ease;
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.1s ease;
 }
 
-.new-chat-button:hover,
-.clear-chat-button:hover {
-  background: #0d8f6d;
+
+/* ===========================
+   New Chat Button
+=========================== */
+
+.new-chat-button {
+  border: none;
+
+  background: #10a37f;
+  color: #ffffff;
+
+  box-shadow:
+    0 2px 6px rgba(16, 163, 127, 0.12);
 }
 
-.new-chat-button:active,
-.clear-chat-button:active {
-  transform: translateY(1px);
+.new-chat-button:hover {
+  background: #0d8f70;
+
+  box-shadow:
+    0 3px 10px rgba(16, 163, 127, 0.16);
 }
+
+.new-chat-button:active {
+  transform: scale(0.99);
+}
+
+.new-chat-button:focus-visible {
+  outline: 2px solid #10a37f;
+  outline-offset: 2px;
+}
+
 
 /* ===========================
    Chat List
@@ -68,13 +106,40 @@
 
 .chat-list {
   flex: 1;
+
   display: flex;
   flex-direction: column;
-  gap: 6px;
+
+  gap: 4px;
+
+  min-height: 0;
+
   overflow-y: auto;
-  overflow-x: visible;
+  overflow-x: hidden;
+
   padding-right: 2px;
+
+  scrollbar-width: thin;
+  scrollbar-color: #c9c9c5 transparent;
 }
+
+.chat-list::-webkit-scrollbar {
+  width: 5px;
+}
+
+.chat-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-list::-webkit-scrollbar-thumb {
+  background: #c9c9c5;
+  border-radius: 999px;
+}
+
+.chat-list::-webkit-scrollbar-thumb:hover {
+  background: #ababaa;
+}
+
 
 /* ===========================
    Chat Row
@@ -82,21 +147,31 @@
 
 .chat-item-row {
   position: relative;
+
   display: flex;
   align-items: center;
-  justify-content: space-between;
+
+  width: 100%;
   min-width: 0;
-  border-radius: 8px;
-  transition: background 0.2s ease;
+
+  border-radius: 9px;
+
+  transition:
+    background-color 0.15s ease;
 }
 
 .chat-item-row:hover {
-  background: #ececec;
+  background: #ececea;
 }
 
 .chat-item-row.active {
-  background: #dfeee9;
+  background: #dff1ec;
 }
+
+.chat-item-row.active:hover {
+  background: #d8ede7;
+}
+
 
 /* ===========================
    Chat Button
@@ -105,92 +180,178 @@
 .chat-item {
   flex: 1;
   min-width: 0;
-  padding: 10px;
+
+  padding: 10px 8px 10px 10px;
+
   border: none;
+  border-radius: 9px;
+
   background: transparent;
-  color: #333;
+  color: #292929;
+
+  font-family: inherit;
   font-size: 14px;
+  font-weight: 400;
+
   text-align: left;
+
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+
   cursor: pointer;
 }
 
+.chat-item:focus-visible {
+  outline: 2px solid #10a37f;
+  outline-offset: -2px;
+}
+
+
 /* ===========================
-   Three Dot Button
+   Three Dot Menu
 =========================== */
 
 .chat-menu {
   position: relative;
+
   flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
 }
 
 .chat-menu-trigger {
   width: 32px;
   height: 32px;
+
   display: grid;
   place-items: center;
+
+  flex-shrink: 0;
+
   padding: 0;
+  margin-right: 2px;
+
   border: none;
-  border-radius: 6px;
+  border-radius: 7px;
+
   background: transparent;
-  color: #555;
+  color: #686868;
+
+  font-family: inherit;
   font-size: 18px;
   line-height: 1;
+
   cursor: pointer;
+
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
 }
 
 .chat-menu-trigger:hover {
-  background: #d9d9d9;
+  background: #dededb;
+  color: #222222;
 }
 
+.chat-menu-trigger:focus-visible {
+  outline: 2px solid #10a37f;
+  outline-offset: 1px;
+}
+
+
 /* ===========================
-   Dropdown
+   Dropdown Menu
 =========================== */
 
 .chat-menu-dropdown {
   position: absolute;
+
   right: 0;
-  z-index: 9999;
-  width: 140px;
-  padding: 4px;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+
+  z-index: 100;
+
+  width: 145px;
+
+  padding: 5px;
+
+  background: #ffffff;
+
+  border: 1px solid #e1e1dd;
+  border-radius: 10px;
+
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.1);
+
+  box-sizing: border-box;
 }
 
 .chat-menu-dropdown.open-down {
   top: calc(100% + 6px);
+  bottom: auto;
 }
 
 .chat-menu-dropdown.open-up {
+  top: auto;
   bottom: calc(100% + 6px);
 }
 
+
+/* ===========================
+   Dropdown Actions
+=========================== */
+
 .chat-menu-action {
   width: 100%;
-  padding: 10px;
+
+  display: flex;
+  align-items: center;
+
+  padding: 9px 10px;
+
   border: none;
-  border-radius: 6px;
-  background: white;
+  border-radius: 7px;
+
+  background: transparent;
+  color: #292929;
+
+  font-family: inherit;
   font-size: 14px;
+  font-weight: 400;
+
   text-align: left;
+
   cursor: pointer;
+
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
 }
 
 .chat-menu-action:hover {
-  background: #f3f3f3;
+  background: #f2f2f0;
 }
 
+.chat-menu-action:focus-visible {
+  outline: 2px solid #10a37f;
+  outline-offset: -2px;
+}
+
+
+/* ===========================
+   Delete Action
+=========================== */
+
 .chat-menu-action.danger {
-  color: #d93025;
+  color: #c9362b;
 }
 
 .chat-menu-action.danger:hover {
-  background: #fdeaea;
+  background: #fdf0ef;
+  color: #b52b22;
 }
+
 
 /* ===========================
    Rename Input
@@ -199,18 +360,67 @@
 .chat-rename-input {
   flex: 1;
   min-width: 0;
-  padding: 8px 10px;
+
+  margin: 3px;
+
+  padding: 7px 9px;
+
   border: 1px solid #10a37f;
-  border-radius: 6px;
-  background: white;
-  color: #333;
-  font: inherit;
+  border-radius: 7px;
+
+  background: #ffffff;
+  color: #292929;
+
+  font-family: inherit;
+  font-size: 14px;
+
   outline: none;
+
+  box-sizing: border-box;
+
+  box-shadow:
+    0 0 0 2px rgba(16, 163, 127, 0.08);
 }
 
 .chat-rename-input:focus {
-  box-shadow: 0 0 0 2px rgba(16, 163, 127, 0.15);
+  border-color: #0d8f70;
+
+  box-shadow:
+    0 0 0 3px rgba(16, 163, 127, 0.12);
 }
+
+
+/* ===========================
+   Clear Current Chat Button
+=========================== */
+
+.clear-chat-button {
+  margin-top: auto;
+
+  border: 1px solid #deded9;
+
+  background: #ffffff;
+  color: #5f5f5a;
+
+  box-shadow: none;
+}
+
+.clear-chat-button:hover {
+  background: #fff4f3;
+  border-color: #efc6c2;
+
+  color: #b42318;
+}
+
+.clear-chat-button:active {
+  transform: scale(0.99);
+}
+
+.clear-chat-button:focus-visible {
+  outline: 2px solid #b42318;
+  outline-offset: 2px;
+}
+
 
 /* ===========================
    Mobile Sidebar
@@ -219,27 +429,69 @@
 @media (max-width: 768px) {
   .sidebar {
     position: fixed;
+
     top: 4rem;
     left: 0;
     bottom: 0;
 
     width: min(85vw, 320px);
     min-width: 0;
-    box-sizing: border-box;
+
+    padding: 14px 12px;
+
+    background: #f7f7f6;
+
+    border-right: 1px solid #e3e3df;
 
     z-index: 1000;
-    padding: 12px;
-    border-right: 1px solid #ddd;
 
     transform: translateX(-100%);
+
+    box-shadow:
+      8px 0 30px rgba(0, 0, 0, 0.08);
+
     transition: transform 0.25s ease;
   }
 
   .sidebar-open {
+    width: min(85vw, 320px);
+    min-width: 0;
+
     transform: translateX(0);
   }
 
   .sidebar-closed {
+    width: min(85vw, 320px);
+    min-width: 0;
+
+    padding: 14px 12px;
+
     transform: translateX(-100%);
+  }
+
+  .chat-menu-dropdown {
+    width: 140px;
+  }
+}
+
+
+/* ===========================
+   Small Phones
+=========================== */
+
+@media (max-width: 480px) {
+  .sidebar {
+    width: min(88vw, 300px);
+  }
+
+  .sidebar-open,
+  .sidebar-closed {
+    width: min(88vw, 300px);
+  }
+
+  .new-chat-button,
+  .clear-chat-button {
+    padding: 11px 12px;
+    font-size: 14px;
   }
 }

@@ -11,10 +11,16 @@ function Sidebar({
   onRenameChat,
   isSidebarOpen,
 }) {
-  const [openMenuId, setOpenMenuId] = useState(null);
-  const [editingChatId, setEditingChatId] = useState(null);
-  const [editedTitle, setEditedTitle] = useState("");
-  const menuRef = useRef(null);
+  const [openMenuId, setOpenMenuId] =
+    useState(null);
+
+  const [editingChatId, setEditingChatId] =
+    useState(null);
+
+  const [editedTitle, setEditedTitle] =
+    useState("");
+
+  const sidebarRef = useRef(null);
 
   function handleToggleMenu(chatId) {
     setOpenMenuId((currentId) =>
@@ -29,13 +35,18 @@ function Sidebar({
   }
 
   function handleSaveRename(chatId) {
-    const trimmedTitle = editedTitle.trim();
+    const trimmedTitle =
+      editedTitle.trim();
 
     if (!trimmedTitle) {
       return;
     }
 
-    onRenameChat(chatId, trimmedTitle);
+    onRenameChat(
+      chatId,
+      trimmedTitle
+    );
+
     setEditingChatId(null);
     setEditedTitle("");
   }
@@ -48,8 +59,10 @@ function Sidebar({
   useEffect(() => {
     function handleClickOutside(event) {
       if (
-        menuRef.current &&
-        !menuRef.current.contains(event.target)
+        sidebarRef.current &&
+        !sidebarRef.current.contains(
+          event.target
+        )
       ) {
         setOpenMenuId(null);
       }
@@ -70,12 +83,12 @@ function Sidebar({
 
   return (
     <aside
+      ref={sidebarRef}
       className={`sidebar ${
         isSidebarOpen
           ? "sidebar-open"
           : "sidebar-closed"
       }`}
-      ref={menuRef}
     >
       <button
         type="button"
@@ -87,95 +100,127 @@ function Sidebar({
       </button>
 
       <div className="chat-list">
-        {chats.map((chat, index) => (
-          <div
-            className={
-              chat.id === activeChatId
-                ? "chat-item-row active"
-                : "chat-item-row"
-            }
-            key={chat.id}
-          >
-            {editingChatId === chat.id ? (
-              <input
-                type="text"
-                className="chat-rename-input"
-                value={editedTitle}
-                onChange={(event) =>
-                  setEditedTitle(event.target.value)
-                }
-                onKeyDown={(event) => {
-                  if (event.key === "Enter") {
-                    handleSaveRename(chat.id);
+        {chats.map((chat, index) => {
+          const shouldOpenUp =
+            index >= chats.length - 2;
+
+          return (
+            <div
+              key={chat.id}
+              className={
+                chat.id === activeChatId
+                  ? "chat-item-row active"
+                  : "chat-item-row"
+              }
+            >
+              {editingChatId ===
+              chat.id ? (
+                <input
+                  type="text"
+                  className="chat-rename-input"
+                  value={editedTitle}
+                  onChange={(event) =>
+                    setEditedTitle(
+                      event.target.value
+                    )
                   }
+                  onKeyDown={(event) => {
+                    if (
+                      event.key ===
+                      "Enter"
+                    ) {
+                      handleSaveRename(
+                        chat.id
+                      );
+                    }
 
-                  if (event.key === "Escape") {
-                    handleCancelRename();
+                    if (
+                      event.key ===
+                      "Escape"
+                    ) {
+                      handleCancelRename();
+                    }
+                  }}
+                  onBlur={
+                    handleCancelRename
                   }
-                }}
-                autoFocus
-              />
-            ) : (
-              <button
-                type="button"
-                className="chat-item"
-                onClick={() =>
-                  onSelectChat(chat.id)
-                }
-                title={chat.title}
-              >
-                {chat.title}
-              </button>
-            )}
+                  autoFocus
+                />
+              ) : (
+                <button
+                  type="button"
+                  className="chat-item"
+                  onClick={() =>
+                    onSelectChat(
+                      chat.id
+                    )
+                  }
+                  title={chat.title}
+                >
+                  {chat.title}
+                </button>
+              )}
 
-            <div className="chat-menu">
-              <button
-                type="button"
-                className="chat-menu-trigger"
-                onClick={() =>
-                  handleToggleMenu(chat.id)
-                }
-                aria-label={`Open actions for ${chat.title}`}
-                aria-expanded={
-                  openMenuId === chat.id
-                }
-              >
-                ⋮
-              </button>
-
-              {openMenuId === chat.id && (
-                <div
-                  className={
-                    index === 0
-                      ? "chat-menu-dropdown open-down"
-                      : "chat-menu-dropdown open-up"
+              <div className="chat-menu">
+                <button
+                  type="button"
+                  className="chat-menu-trigger"
+                  onClick={() =>
+                    handleToggleMenu(
+                      chat.id
+                    )
+                  }
+                  aria-label={`Open actions for ${chat.title}`}
+                  aria-expanded={
+                    openMenuId ===
+                    chat.id
                   }
                 >
-                  <button
-                    type="button"
-                    className="chat-menu-action"
-                    onClick={() =>
-                      handleStartRename(chat)
-                    }
-                  >
-                    Rename
-                  </button>
+                  ⋮
+                </button>
 
-                  <button
-                    type="button"
-                    className="chat-menu-action danger"
-                    onClick={() => {
-                      onDeleteChat(chat.id);
-                      setOpenMenuId(null);
-                    }}
+                {openMenuId ===
+                  chat.id && (
+                  <div
+                    className={`chat-menu-dropdown ${
+                      shouldOpenUp
+                        ? "open-up"
+                        : "open-down"
+                    }`}
                   >
-                    Delete chat
-                  </button>
-                </div>
-              )}
+                    <button
+                      type="button"
+                      className="chat-menu-action"
+                      onClick={() =>
+                        handleStartRename(
+                          chat
+                        )
+                      }
+                    >
+                      Rename
+                    </button>
+
+                    <button
+                      type="button"
+                      className="chat-menu-action danger"
+                      onClick={() => {
+                        onDeleteChat(
+                          chat.id
+                        );
+
+                        setOpenMenuId(
+                          null
+                        );
+                      }}
+                    >
+                      Delete chat
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <button
