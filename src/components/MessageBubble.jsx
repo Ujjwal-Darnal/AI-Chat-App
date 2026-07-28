@@ -3,6 +3,7 @@ import { useState } from "react";
 import {
   Check,
   Copy,
+  Pencil,
   RefreshCw,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
@@ -13,12 +14,20 @@ import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 function MessageBubble({
   message,
   isLatestAssistant,
+  isLatestUser,
   onRegenerateResponse,
+  onEditMessage,
   isLoading,
 }) {
-  const [isCopied, setIsCopied] = useState(false);
+  const [isCopied, setIsCopied] =
+    useState(false);
 
-  // Copy the complete assistant message
+  const [isEditing, setIsEditing] =
+    useState(false);
+
+  const [editedContent, setEditedContent] =
+    useState(message.content);
+
   async function handleCopyMessage() {
     try {
       await navigator.clipboard.writeText(
@@ -38,54 +47,118 @@ function MessageBubble({
     }
   }
 
+  async function handleSaveEdit() {
+    const trimmedContent =
+      editedContent.trim();
+
+    if (!trimmedContent) {
+      return;
+    }
+
+    await onEditMessage(
+      message.id,
+      trimmedContent
+    );
+
+    setIsEditing(false);
+  }
+
+  function handleCancelEdit() {
+    setEditedContent(message.content);
+    setIsEditing(false);
+  }
+
   return (
-    <div className={`message ${message.role}`}>
-      <div className="message-content">
-        <ReactMarkdown
-          remarkPlugins={[remarkGfm]}
-          components={{
-            code({ className, children, ...props }) {
-              const languageMatch =
-                /language-(\w+)/.exec(
-                  className || ""
-                );
+    <div
+      className={`message ${message.role}`}
+    >
+      {isEditing ? (
+        <div className="message-edit-form">
+          <textarea
+            className="message-edit-textarea"
+            value={editedContent}
+            onChange={(event) =>
+              setEditedContent(
+                event.target.value
+              )
+            }
+            aria-label="Edit message"
+            autoFocus
+          />
 
-              // Render fenced code blocks
-              // using syntax highlighting
-              if (languageMatch) {
-                return (
-                  <SyntaxHighlighter
-                    style={oneDark}
-                    language={languageMatch[1]}
-                    PreTag="div"
-                  >
-                    {String(children).replace(
-                      /\n$/,
-                      ""
-                    )}
-                  </SyntaxHighlighter>
-                );
+          <div className="message-edit-actions">
+            <button
+              type="button"
+              className="cancel-edit-button"
+              onClick={handleCancelEdit}
+              disabled={isLoading}
+            >
+              Cancel
+            </button>
+
+            <button
+              type="button"
+              className="save-edit-button"
+              onClick={handleSaveEdit}
+              disabled={
+                !editedContent.trim() ||
+                isLoading
               }
+            >
+              Save & Send
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="message-content">
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={{
+              code({
+                className,
+                children,
+                ...props
+              }) {
+                const languageMatch =
+                  /language-(\w+)/.exec(
+                    className || ""
+                  );
 
-              // Render normal inline code
-              return (
-                <code
-                  className={className}
-                  {...props}
-                >
-                  {children}
-                </code>
-              );
-            },
-          }}
-        >
-          {message.content}
-        </ReactMarkdown>
-      </div>
+                if (languageMatch) {
+                  return (
+                    <SyntaxHighlighter
+                      style={oneDark}
+                      language={
+                        languageMatch[1]
+                      }
+                      PreTag="div"
+                    >
+                      {String(
+                        children
+                      ).replace(/\n$/, "")}
+                    </SyntaxHighlighter>
+                  );
+                }
 
-      {/* Only show actions for the latest assistant response */}
+                return (
+                  <code
+                    className={className}
+                    {...props}
+                  >
+                    {children}
+                  </code>
+                );
+              },
+            }}
+          >
+            {message.content}
+          </ReactMarkdown>
+        </div>
+      )}
+
       {message.role === "assistant" &&
-        isLatestAssistant && (
+        isLatestAssistant &&
+        !isEditing && (
           <div className="message-actions">
             <button
               type="button"
@@ -113,12 +186,33 @@ function MessageBubble({
             <button
               type="button"
               className="regenerate-message-button"
-              onClick={onRegenerateResponse}
+              onClick={
+                onRegenerateResponse
+              }
               disabled={isLoading}
               aria-label="Regenerate response"
             >
               <RefreshCw size={16} />
               <span>Regenerate</span>
+            </button>
+          </div>
+        )}
+
+      {message.role === "user" &&
+        isLatestUser &&
+        !isEditing && (
+          <div className="message-actions">
+            <button
+              type="button"
+              className="edit-message-button"
+              onClick={() =>
+                setIsEditing(true)
+              }
+              aria-label="Edit user message"
+              disabled={isLoading}
+            >
+              <Pencil size={16} />
+              <span>Edit</span>
             </button>
           </div>
         )}

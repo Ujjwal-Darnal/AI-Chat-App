@@ -5,6 +5,7 @@ import "../styles/ChatWindow.css";
 function MessageList({
   messages,
   onRegenerateResponse,
+  onEditMessage,
   isLoading,
 }) {
   const bottomRef = useRef(null);
@@ -15,6 +16,10 @@ function MessageList({
     .find(
       (message) => message.role === "assistant"
     )?.id;
+
+   //find the latest user message without mutating state
+  
+    const lastUserMessageId = [...messages].reverse().find((message)=>message.role === "user")?.id;
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({
@@ -31,9 +36,13 @@ function MessageList({
           isLatestAssistant={
             message.id === lastAssistantMessageId
           }
+          isLatestUser = {
+            message.id === lastUserMessageId
+          }
           onRegenerateResponse={
             onRegenerateResponse
           }
+          onEditMessage={onEditMessage}
           isLoading={isLoading}
         />
       ))}

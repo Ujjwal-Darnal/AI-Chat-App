@@ -572,6 +572,187 @@ function App() {
     }
   }, [activeChatId]);
 
+  async function handleEditMessage(
+  messageId,
+  newContent
+) {
+  if (isLoading || !activeChatId) {
+    return;
+  }
+
+  const currentChat = chats.find(
+    (chat) => chat.id === activeChatId
+  );
+
+  if (!currentChat) {
+    return;
+  }
+
+  const userMessageIndex =
+    currentChat.messages.findIndex(
+      (message) =>
+        message.id === messageId &&
+        message.role === "user"
+    );
+
+  if (userMessageIndex === -1) {
+    return;
+  }
+
+  const trimmedContent =
+    newContent.trim();
+
+  if (!trimmedContent) {
+    return;
+  }
+
+  // Save the original chat in case the request fails
+  const originalMessages =
+    currentChat.messages;
+
+  const originalTitle =
+    currentChat.title;
+
+  /*
+    Keep all messages up to the edited user message.
+
+    Anything after it is removed because it belongs
+    to the old version of the question.
+  */
+  const conversationMessages =
+    currentChat.messages
+      .slice(0, userMessageIndex + 1)
+      .map((message) =>
+        message.id === messageId
+          ? {
+              ...message,
+              content: trimmedContent,
+            }
+          : message
+      );
+
+  const assistantMessageId =
+    crypto.randomUUID();
+
+  const assistantMessage = {
+    id: assistantMessageId,
+    role: "assistant",
+    content: "",
+  };
+
+  const controller =
+    new AbortController();
+
+  abortControllerRef.current =
+    controller;
+
+  setIsLoading(true);
+  setError(null);
+
+  // Update the edited message and add an empty
+  // assistant message for streaming
+  setChats((previousChats) =>
+    previousChats.map((chat) => {
+      if (chat.id !== activeChatId) {
+        return chat;
+      }
+
+      return {
+        ...chat,
+
+        // Update title when the first user message
+        // in the conversation was edited
+        title:
+          userMessageIndex === 0
+            ? trimmedContent.slice(0, 30)
+            : chat.title,
+
+        messages: [
+          ...conversationMessages,
+          assistantMessage,
+        ],
+      };
+    })
+  );
+
+  try {
+    await getAIResponse(
+      conversationMessages.map(
+        ({ role, content }) => ({
+          role,
+          content,
+        })
+      ),
+
+      // Add every streamed chunk to the
+      // replacement assistant message
+      (chunk) => {
+        setChats((previousChats) =>
+          previousChats.map((chat) => {
+            if (
+              chat.id !== activeChatId
+            ) {
+              return chat;
+            }
+
+            return {
+              ...chat,
+              messages:
+                chat.messages.map(
+                  (message) =>
+                    message.id ===
+                    assistantMessageId
+                      ? {
+                          ...message,
+                          content:
+                            message.content +
+                            chunk,
+                        }
+                      : message
+                ),
+            };
+          })
+        );
+      },
+
+      controller.signal
+    );
+  } catch (error) {
+    if (error.name !== "AbortError") {
+      console.error(
+        "Failed to edit message:",
+        error
+      );
+
+      setError(
+        "Unable to generate a new response."
+      );
+
+      // Restore the conversation before editing
+      setChats((previousChats) =>
+        previousChats.map((chat) =>
+          chat.id === activeChatId
+            ? {
+                ...chat,
+                title: originalTitle,
+                messages:
+                  originalMessages,
+              }
+            : chat
+        )
+      );
+    }
+  } finally {
+    setIsLoading(false);
+
+    if (
+      abortControllerRef.current ===
+      controller
+    ) {
+      abortControllerRef.current = null;
+    }
+  }
+}
   // Open or close the mobile sidebar
   function handleToggleSidebar() {
     setIsSidebarOpen(
@@ -585,6 +766,7 @@ function App() {
     setIsSidebarOpen(false);
   }
 
+ 
   return (
     <div className="app">
       <Header
@@ -620,18 +802,16 @@ function App() {
           }
         />
 
-        <ChatWindow
-          messages={messages}
-          onAddMessage={handleAddMessage}
-          onStopGenerating={
-            handleStopGenerating
-          }
-          onRegenerateResponse={
-            handleRegenerateResponse
-          }
-          isLoading={isLoading}
-          error={error}
-        />
+       <ChatWindow
+  messages={activeChat?.messages ?? []}
+  onAddMessage={handleAddMessage}
+  onRegenerateResponse={
+    handleRegenerateResponse
+  }
+  onEditMessage={handleEditMessage}
+  isLoading={isLoading}
+  error={error}
+/>
       </main>
     </div>
   );

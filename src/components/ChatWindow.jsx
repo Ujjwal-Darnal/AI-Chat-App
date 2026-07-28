@@ -9,6 +9,7 @@ function ChatWindow({
   onStopGenerating,
   onRegenerateResponse,
   isLoading,
+  onEditMessage,
   error,
 }) {
   const hasMessages = messages.length > 0;
@@ -22,6 +23,7 @@ function ChatWindow({
             onRegenerateResponse={
               onRegenerateResponse
             }
+            onEditMessage={onEditMessage}
             isLoading={isLoading}
           />
         ) : (
