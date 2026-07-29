@@ -12,11 +12,15 @@
   align-items: flex-end;
   gap: 0.65rem;
 
-  background: #faf9f5;
+  background: var(--color-app-bg);
 
-  border-top: 1px solid #e7e4dc;
+  border-top: 1px solid var(--color-border);
 
   box-sizing: border-box;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 /* ===========================
@@ -34,11 +38,11 @@
 
   box-sizing: border-box;
 
-  border: 1px solid #deddd8;
+  border: 1px solid var(--color-border-strong);
   border-radius: 18px;
 
-  background: #ffffff;
-  color: #252525;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
 
   font-family: inherit;
   font-size: 0.98rem;
@@ -55,22 +59,23 @@
   transition:
     border-color 0.18s ease,
     box-shadow 0.18s ease,
-    background-color 0.18s ease;
+    background-color 0.18s ease,
+    color 0.18s ease;
 }
 
 .chat-input textarea:hover {
-  border-color: #cfd3cf;
+  border-color: var(--color-text-muted);
 }
 
 .chat-input textarea:focus {
-  border-color: #10a37f;
+  border-color: var(--color-primary);
 
   box-shadow:
     0 0 0 3px rgba(16, 163, 127, 0.1);
 }
 
 .chat-input textarea::placeholder {
-  color: #8b8b84;
+  color: var(--color-text-muted);
 }
 
 /* ===========================
@@ -90,7 +95,7 @@
   border: none;
   border-radius: 14px;
 
-  background: #10a37f;
+  background: var(--color-primary);
   color: #ffffff;
 
   font-family: inherit;
@@ -110,7 +115,7 @@
 }
 
 .chat-input button:hover:not(:disabled) {
-  background: #0d8f70;
+  background: var(--color-primary-hover);
 
   box-shadow:
     0 3px 8px rgba(16, 163, 127, 0.18);
@@ -121,7 +126,7 @@
 }
 
 .chat-input button:focus-visible {
-  outline: 2px solid #10a37f;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
@@ -130,8 +135,8 @@
 =========================== */
 
 .chat-input button:disabled {
-  background: #e0ded5;
-  color: #9b978c;
+  background: var(--color-border);
+  color: var(--color-text-muted);
 
   box-shadow: none;
 
@@ -151,7 +156,7 @@
 }
 
 .chat-input textarea::-webkit-scrollbar-thumb {
-  background: #d4d4cf;
+  background: var(--color-border-strong);
   border-radius: 999px;
 }
 

@@ -11,8 +11,12 @@
 
   position: relative;
 
-  background: #faf9f5;
-  color: #252525;
+  background: var(--color-app-bg);
+  color: var(--color-text-primary);
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 /* ===========================
@@ -79,7 +83,7 @@
 
   border-radius: 1rem;
 
-  background: #10a37f;
+  background: var(--color-primary);
   color: #ffffff;
 
   font-size: 1.1rem;
@@ -92,7 +96,7 @@
 .chat-empty-state h1 {
   margin: 0;
 
-  color: #252525;
+  color: var(--color-text-primary);
 
   font-size: clamp(1.7rem, 3vw, 2.35rem);
   font-weight: 650;
@@ -106,7 +110,7 @@
 
   margin: 0.8rem 0 1.5rem;
 
-  color: #6b6b6b;
+  color: var(--color-text-secondary);
 
   font-size: 0.95rem;
   line-height: 1.6;
@@ -129,11 +133,11 @@
 .example-prompts button {
   padding: 0.65rem 0.95rem;
 
-  border: 1px solid #deded9;
+  border: 1px solid var(--color-border);
   border-radius: 999px;
 
-  background: #ffffff;
-  color: #4f4f4f;
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
 
   font-family: inherit;
   font-size: 0.85rem;
@@ -148,9 +152,9 @@
 }
 
 .example-prompts button:hover {
-  background: #f1f6f4;
-  border-color: #c9ddd6;
-  color: #252525;
+  background: var(--color-surface-soft);
+  border-color: var(--color-primary);
+  color: var(--color-text-primary);
 }
 
 .example-prompts button:active {
@@ -158,7 +162,7 @@
 }
 
 .example-prompts button:focus-visible {
-  outline: 2px solid #10a37f;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
@@ -180,11 +184,11 @@
 }
 
 .loading-indicator {
-  color: #6f6f6f;
+  color: var(--color-text-secondary);
 }
 
 .error-message {
-  color: #b42318;
+  color: var(--color-danger);
 }
 
 /* ===========================
@@ -200,12 +204,12 @@
 }
 
 .chat-content::-webkit-scrollbar-thumb {
-  background: #d5d5d0;
+  background: var(--color-border-strong);
   border-radius: 999px;
 }
 
 .chat-content::-webkit-scrollbar-thumb:hover {
-  background: #bdbdb8;
+  background: var(--color-text-muted);
 }
 
 /* ===========================

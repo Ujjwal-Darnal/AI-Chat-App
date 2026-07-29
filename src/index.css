@@ -1,0 +1,106 @@
+/* ===========================
+   Global Theme
+=========================== */
+
+:root {
+  color-scheme: light;
+
+  /* Brand */
+  --color-primary: #10a37f;
+  --color-primary-hover: #0d8f70;
+
+  /* Backgrounds */
+  --color-app-bg: #faf9f5;
+  --color-sidebar-bg: #f7f7f6;
+  --color-surface: #ffffff;
+  --color-surface-soft: #f2f2ef;
+
+  /* Text */
+  --color-text-primary: #252525;
+  --color-text-secondary: #666662;
+  --color-text-muted: #8b8b84;
+
+  /* Borders */
+  --color-border: #e3e2dc;
+  --color-border-strong: #d8d8d3;
+
+  /* Messages */
+  --color-user-message-bg: #e7f4ef;
+  --color-user-message-text: #202020;
+
+  /* Interactive States */
+  --color-hover: #eeeeeb;
+  --color-active-chat: #dff1ec;
+
+  /* Destructive States */
+  --color-danger: #b42318;
+  --color-danger-bg: #fff4f3;
+
+  /* Shadows */
+  --shadow-soft:
+    0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* ===========================
+   Dark Theme
+=========================== */
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Brand */
+  --color-primary: #19b88d;
+  --color-primary-hover: #20c99a;
+
+  /* Backgrounds */
+  --color-app-bg: #181a19;
+  --color-sidebar-bg: #202220;
+  --color-surface: #262927;
+  --color-surface-soft: #2d302e;
+
+  /* Text */
+  --color-text-primary: #f1f1ed;
+  --color-text-secondary: #b9bbb7;
+  --color-text-muted: #8f928d;
+
+  /* Borders */
+  --color-border: #343734;
+  --color-border-strong: #424642;
+
+  /* Messages */
+  --color-user-message-bg: #173c32;
+  --color-user-message-text: #edf7f3;
+
+  /* Interactive States */
+  --color-hover: #303330;
+  --color-active-chat: #263f37;
+
+  /* Destructive States */
+  --color-danger: #ff8075;
+  --color-danger-bg: #402624;
+
+  /* Shadows */
+  --shadow-soft:
+    0 2px 12px rgba(0, 0, 0, 0.22);
+}
+
+/* ===========================
+   Global Styles
+=========================== */
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+
+  background: var(--color-app-bg);
+  color: var(--color-text-primary);
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}

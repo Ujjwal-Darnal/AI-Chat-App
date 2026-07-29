@@ -13,8 +13,8 @@
   padding: 14px 12px;
   gap: 12px;
 
-  background: #f7f7f6;
-  border-right: 1px solid #e3e3df;
+  background: var(--color-sidebar-bg);
+  border-right: 1px solid var(--color-border);
 
   box-sizing: border-box;
   overflow: hidden;
@@ -23,7 +23,9 @@
     width 0.25s ease,
     min-width 0.25s ease,
     padding 0.25s ease,
-    transform 0.25s ease;
+    transform 0.25s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .sidebar-open {
@@ -40,7 +42,6 @@
 
   border-right: none;
 }
-
 
 /* ===========================
    Main Sidebar Buttons
@@ -68,7 +69,6 @@
     transform 0.1s ease;
 }
 
-
 /* ===========================
    New Chat Button
 =========================== */
@@ -76,7 +76,7 @@
 .new-chat-button {
   border: none;
 
-  background: #10a37f;
+  background: var(--color-primary);
   color: #ffffff;
 
   box-shadow:
@@ -84,7 +84,7 @@
 }
 
 .new-chat-button:hover {
-  background: #0d8f70;
+  background: var(--color-primary-hover);
 
   box-shadow:
     0 3px 10px rgba(16, 163, 127, 0.16);
@@ -95,10 +95,9 @@
 }
 
 .new-chat-button:focus-visible {
-  outline: 2px solid #10a37f;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
-
 
 /* ===========================
    Chat List
@@ -120,7 +119,9 @@
   padding-right: 2px;
 
   scrollbar-width: thin;
-  scrollbar-color: #c9c9c5 transparent;
+  scrollbar-color:
+    var(--color-border-strong)
+    transparent;
 }
 
 .chat-list::-webkit-scrollbar {
@@ -132,14 +133,13 @@
 }
 
 .chat-list::-webkit-scrollbar-thumb {
-  background: #c9c9c5;
+  background: var(--color-border-strong);
   border-radius: 999px;
 }
 
 .chat-list::-webkit-scrollbar-thumb:hover {
-  background: #ababaa;
+  background: var(--color-text-muted);
 }
-
 
 /* ===========================
    Chat Row
@@ -161,17 +161,16 @@
 }
 
 .chat-item-row:hover {
-  background: #ececea;
+  background: var(--color-hover);
 }
 
 .chat-item-row.active {
-  background: #dff1ec;
+  background: var(--color-active-chat);
 }
 
 .chat-item-row.active:hover {
-  background: #d8ede7;
+  background: var(--color-active-chat);
 }
-
 
 /* ===========================
    Chat Button
@@ -187,7 +186,7 @@
   border-radius: 9px;
 
   background: transparent;
-  color: #292929;
+  color: var(--color-text-primary);
 
   font-family: inherit;
   font-size: 14px;
@@ -203,10 +202,9 @@
 }
 
 .chat-item:focus-visible {
-  outline: 2px solid #10a37f;
+  outline: 2px solid var(--color-primary);
   outline-offset: -2px;
 }
-
 
 /* ===========================
    Three Dot Menu
@@ -237,7 +235,7 @@
   border-radius: 7px;
 
   background: transparent;
-  color: #686868;
+  color: var(--color-text-secondary);
 
   font-family: inherit;
   font-size: 18px;
@@ -251,15 +249,14 @@
 }
 
 .chat-menu-trigger:hover {
-  background: #dededb;
-  color: #222222;
+  background: var(--color-hover);
+  color: var(--color-text-primary);
 }
 
 .chat-menu-trigger:focus-visible {
-  outline: 2px solid #10a37f;
+  outline: 2px solid var(--color-primary);
   outline-offset: 1px;
 }
-
 
 /* ===========================
    Dropdown Menu
@@ -276,13 +273,12 @@
 
   padding: 5px;
 
-  background: #ffffff;
+  background: var(--color-surface);
 
-  border: 1px solid #e1e1dd;
+  border: 1px solid var(--color-border);
   border-radius: 10px;
 
-  box-shadow:
-    0 8px 24px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-soft);
 
   box-sizing: border-box;
 }
@@ -296,7 +292,6 @@
   top: auto;
   bottom: calc(100% + 6px);
 }
-
 
 /* ===========================
    Dropdown Actions
@@ -314,7 +309,7 @@
   border-radius: 7px;
 
   background: transparent;
-  color: #292929;
+  color: var(--color-text-primary);
 
   font-family: inherit;
   font-size: 14px;
@@ -330,28 +325,26 @@
 }
 
 .chat-menu-action:hover {
-  background: #f2f2f0;
+  background: var(--color-surface-soft);
 }
 
 .chat-menu-action:focus-visible {
-  outline: 2px solid #10a37f;
+  outline: 2px solid var(--color-primary);
   outline-offset: -2px;
 }
-
 
 /* ===========================
    Delete Action
 =========================== */
 
 .chat-menu-action.danger {
-  color: #c9362b;
+  color: var(--color-danger);
 }
 
 .chat-menu-action.danger:hover {
-  background: #fdf0ef;
-  color: #b52b22;
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
 }
-
 
 /* ===========================
    Rename Input
@@ -365,11 +358,11 @@
 
   padding: 7px 9px;
 
-  border: 1px solid #10a37f;
+  border: 1px solid var(--color-primary);
   border-radius: 7px;
 
-  background: #ffffff;
-  color: #292929;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
 
   font-family: inherit;
   font-size: 14px;
@@ -383,12 +376,11 @@
 }
 
 .chat-rename-input:focus {
-  border-color: #0d8f70;
+  border-color: var(--color-primary-hover);
 
   box-shadow:
     0 0 0 3px rgba(16, 163, 127, 0.12);
 }
-
 
 /* ===========================
    Clear Current Chat Button
@@ -397,19 +389,19 @@
 .clear-chat-button {
   margin-top: auto;
 
-  border: 1px solid #deded9;
+  border: 1px solid var(--color-border);
 
-  background: #ffffff;
-  color: #5f5f5a;
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
 
   box-shadow: none;
 }
 
 .clear-chat-button:hover {
-  background: #fff4f3;
-  border-color: #efc6c2;
+  background: var(--color-danger-bg);
+  border-color: var(--color-danger);
 
-  color: #b42318;
+  color: var(--color-danger);
 }
 
 .clear-chat-button:active {
@@ -417,10 +409,9 @@
 }
 
 .clear-chat-button:focus-visible {
-  outline: 2px solid #b42318;
+  outline: 2px solid var(--color-danger);
   outline-offset: 2px;
 }
-
 
 /* ===========================
    Mobile Sidebar
@@ -439,9 +430,8 @@
 
     padding: 14px 12px;
 
-    background: #f7f7f6;
-
-    border-right: 1px solid #e3e3df;
+    background: var(--color-sidebar-bg);
+    border-right: 1px solid var(--color-border);
 
     z-index: 1000;
 
@@ -473,7 +463,6 @@
     width: 140px;
   }
 }
-
 
 /* ===========================
    Small Phones

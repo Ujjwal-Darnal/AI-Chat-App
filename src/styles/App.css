@@ -1,54 +1,94 @@
+/* ===========================
+   Global Reset
+=========================== */
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+/* ===========================
+   Document
+=========================== */
+
 body {
-  font-family: Inter, Arial, sans-serif;
-  background-color: #faf9f5;
-  color: #3d3929;
+  font-family:
+    Inter,
+    Arial,
+    sans-serif;
+
+  background: var(--color-app-bg);
+  color: var(--color-text-primary);
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
+
+/* ===========================
+   App Layout
+=========================== */
 
 .app {
   height: 100vh;
+
   display: flex;
   flex-direction: column;
+
   overflow: hidden;
+
+  background: var(--color-app-bg);
+  color: var(--color-text-primary);
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .app-layout {
-  display: flex;
   flex: 1;
   min-height: 0;
+
+  display: flex;
+
   overflow: hidden;
 }
 
-/* Backdrop is not used on desktop */
+/* ===========================
+   Sidebar Backdrop
+=========================== */
+
 .sidebar-backdrop {
   display: none;
 }
 
-/* Mobile layout */
-@media (max-width: 768px) {
+/* ===========================
+   Mobile Layout
+=========================== */
 
+@media (max-width: 768px) {
   .sidebar-backdrop {
     position: fixed;
+
     top: 4rem;
     right: 0;
     bottom: 0;
     left: 0;
 
+    z-index: 900;
+
     display: block;
+
     padding: 0;
     border: none;
-    background: rgba(0, 0, 0, 0.4);
+
+    background: rgba(0, 0, 0, 0.48);
 
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
 
-    z-index: 900;
     cursor: pointer;
 
     transition:
@@ -60,5 +100,11 @@ body {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar-backdrop {
+    top: 3.75rem;
   }
 }
