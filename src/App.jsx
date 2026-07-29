@@ -75,6 +75,13 @@ function App() {
   async function handleAddMessage(
     newMessage
   ) {
+    if (
+      isLoading ||
+      !newMessage?.content?.trim()
+    ) {
+      return;
+    }
+
     setError("");
     setIsLoading(true);
 
@@ -84,13 +91,21 @@ function App() {
     abortControllerRef.current =
       controller;
 
+    const messageContent =
+      newMessage.content.trim();
+
+    const preparedMessage = {
+      ...newMessage,
+      content: messageContent,
+    };
+
     const newTitle =
-      newMessage.content.length > 30
-        ? `${newMessage.content.slice(
+      messageContent.length > 30
+        ? `${messageContent.slice(
             0,
             30
           )}...`
-        : newMessage.content;
+        : messageContent;
 
     let targetChatId = activeChatId;
     let conversationMessages = [];
@@ -101,7 +116,7 @@ function App() {
         crypto.randomUUID();
 
       conversationMessages = [
-        newMessage,
+        preparedMessage,
       ];
 
       const newChat = {
@@ -125,7 +140,7 @@ function App() {
 
       conversationMessages = [
         ...(targetChat?.messages ?? []),
-        newMessage,
+        preparedMessage,
       ];
 
       setChats((previousChats) =>
@@ -266,9 +281,9 @@ function App() {
       ) {
         abortControllerRef.current =
           null;
-      }
 
-      setIsLoading(false);
+        setIsLoading(false);
+      }
     }
   }
 
@@ -440,9 +455,9 @@ function App() {
       ) {
         abortControllerRef.current =
           null;
-      }
 
-      setIsLoading(false);
+        setIsLoading(false);
+      }
     }
   }
 
@@ -639,9 +654,9 @@ function App() {
       ) {
         abortControllerRef.current =
           null;
-      }
 
-      setIsLoading(false);
+        setIsLoading(false);
+      }
     }
   }
 

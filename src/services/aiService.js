@@ -1,69 +1,123 @@
-// Send the conversation to the backend and stream the AI response
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ??
+  "http://localhost:5000";
+
 export async function getAIResponse(
   messages,
   onChunk,
   signal
 ) {
-  // Send the full conversation history to the backend
-  const response = await fetch(
-    "http://localhost:5000/api/chat",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        messages,
-      }),
-      signal,
-    }
-  );
-
-  // Throw an error if the request failed
-  if (!response.ok) {
+  if (!Array.isArray(messages)) {
     throw new Error(
-      "Unable to fetch AI response."
+      "Invalid conversation data."
     );
   }
 
-  // Ensure the browser supports streaming responses
+  if (typeof onChunk !== "function") {
+    throw new Error(
+      "A streaming callback is required."
+    );
+  }
+
+  let response;
+
+  try {
+    response = await fetch(
+      `${API_BASE_URL}/api/chat`,
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type":
+            "application/json",
+        },
+
+        body: JSON.stringify({
+          messages,
+        }),
+
+        signal,
+      }
+    );
+  } catch (requestError) {
+    if (
+      requestError.name ===
+      "AbortError"
+    ) {
+      throw requestError;
+    }
+
+    throw new Error(
+      "Unable to connect to the server."
+    );
+  }
+
+  if (!response.ok) {
+    let errorMessage =
+      "Unable to generate a response.";
+
+    try {
+      const errorData =
+        await response.json();
+
+      errorMessage =
+        errorData.error ||
+        errorData.message ||
+        errorMessage;
+    } catch {
+      // Keep the fallback message when the response is not JSON.
+    }
+
+    throw new Error(errorMessage);
+  }
+
   if (!response.body) {
     throw new Error(
       "Streaming is not supported in this browser."
     );
   }
 
-  // Create a reader to read the response stream chunk by chunk
-  const reader = response.body.getReader();
+  const reader =
+    response.body.getReader();
 
-  // Decode binary chunks into readable text
   const decoder = new TextDecoder();
 
-  // Store the complete response as it is received
   let completeResponse = "";
 
-  while (true) {
-    // Read the next chunk from the stream
-    const { value, done } =
-      await reader.read();
+  try {
+    while (true) {
+      const { value, done } =
+        await reader.read();
 
-    // Exit the loop when the stream has finished
-    if (done) {
-      break;
+      if (done) {
+        break;
+      }
+
+      const chunk = decoder.decode(
+        value,
+        {
+          stream: true,
+        }
+      );
+
+      if (!chunk) {
+        continue;
+      }
+
+      completeResponse += chunk;
+      onChunk(chunk);
     }
 
-    // Convert the binary chunk into a text string
-    const chunk = decoder.decode(value, {
-      stream: true,
-    });
+    const finalChunk =
+      decoder.decode();
 
-    // Build the complete response
-    completeResponse += chunk;
+    if (finalChunk) {
+      completeResponse += finalChunk;
+      onChunk(finalChunk);
+    }
 
-    // Send the latest chunk back to the React app
-    onChunk(chunk);
+    return completeResponse;
+  } finally {
+    reader.releaseLock();
   }
-
-  // Return the complete response after streaming finishes
-  return completeResponse;
 }
