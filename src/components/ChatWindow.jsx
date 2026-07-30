@@ -8,6 +8,7 @@ function ChatWindow({
   onAddMessage,
   onStopGenerating,
   onRegenerateResponse,
+  onRetry,
   isLoading,
   onEditMessage,
   error,
@@ -32,19 +33,26 @@ function ChatWindow({
               AI
             </div>
 
-            <h1>How can I help you today?</h1>
+            <h1>
+              How can I help you today?
+            </h1>
 
             <p>
-              Ask a question, explore an idea, or
-              get help with your code. Start by
-              typing a message below.
+              Ask a question, explore an
+              idea, or get help with your
+              code. Start by typing a
+              message below.
             </p>
 
             <div className="example-prompts">
               <span>
                 Explain a difficult concept
               </span>
-              <span>Help debug my code</span>
+
+              <span>
+                Help debug my code
+              </span>
+
               <span>
                 Prepare for an interview
               </span>
@@ -52,18 +60,36 @@ function ChatWindow({
           </div>
         )}
 
-        {isLoading && <LoadingIndicator />}
+        {isLoading && (
+          <LoadingIndicator />
+        )}
 
         {error && (
-          <p className="chat-error" role="alert">
-            {error}
-          </p>
+          <div
+            className="error-message"
+            role="alert"
+          >
+            <span>{error}</span>
+
+            {onRetry && (
+              <button
+                type="button"
+                className="retry-button"
+                onClick={onRetry}
+                disabled={isLoading}
+              >
+                Retry
+              </button>
+            )}
+          </div>
         )}
       </div>
 
       <ChatInput
         onAddMessage={onAddMessage}
-        onStopGenerating={onStopGenerating}
+        onStopGenerating={
+          onStopGenerating
+        }
         isLoading={isLoading}
       />
     </section>

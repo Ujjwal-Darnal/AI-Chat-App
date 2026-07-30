@@ -58,6 +58,10 @@ function App() {
   const [error, setError] =
     useState("");
 
+  // Stores the failed operation so the user can retry it.
+  const [retryRequest, setRetryRequest] =
+    useState(null);
+
   const [
     isSidebarOpen,
     setIsSidebarOpen,
@@ -82,6 +86,7 @@ function App() {
       return;
     }
 
+    setRetryRequest(null);
     setError("");
     setIsLoading(true);
 
@@ -254,7 +259,7 @@ function App() {
 
       console.error(requestError);
 
-      // Remove the failed assistant placeholder.
+      // Remove the failed assistant placeholder while keeping the user message.
       setChats((previousChats) =>
         previousChats.map((chat) =>
           chat.id === targetChatId
@@ -272,8 +277,13 @@ function App() {
       );
 
       setError(
-        "Something went wrong. Please try again."
+        requestError.message ||
+          "Something went wrong. Please try again."
       );
+
+      setRetryRequest({
+        type: "regenerate",
+      });
     } finally {
       if (
         abortControllerRef.current ===
@@ -315,17 +325,17 @@ function App() {
           "assistant"
       );
 
-    if (
-      latestAssistantIndex === -1
-    ) {
-      return;
-    }
-
+    /*
+     * A failed first response leaves the conversation ending
+     * with a user message and no assistant message.
+     */
     const conversationMessages =
-      currentChat.messages.slice(
-        0,
-        latestAssistantIndex
-      );
+      latestAssistantIndex === -1
+        ? currentChat.messages
+        : currentChat.messages.slice(
+            0,
+            latestAssistantIndex
+          );
 
     const latestConversationMessage =
       conversationMessages.at(-1);
@@ -338,6 +348,7 @@ function App() {
       return;
     }
 
+    setRetryRequest(null);
     setError("");
     setIsLoading(true);
 
@@ -432,7 +443,7 @@ function App() {
 
       console.error(requestError);
 
-      // Restore the previous response if regeneration fails.
+      // Restore the previous conversation if regeneration fails.
       setChats((previousChats) =>
         previousChats.map((chat) =>
           chat.id === activeChatId
@@ -446,8 +457,13 @@ function App() {
       );
 
       setError(
-        "Something went wrong while regenerating the response."
+        requestError.message ||
+          "Something went wrong while regenerating the response."
       );
+
+      setRetryRequest({
+        type: "regenerate",
+      });
     } finally {
       if (
         abortControllerRef.current ===
@@ -500,6 +516,8 @@ function App() {
     if (!trimmedContent) {
       return;
     }
+
+    setRetryRequest(null);
 
     // Preserve the original conversation for error recovery.
     const originalMessages =
@@ -556,10 +574,13 @@ function App() {
 
           title:
             userMessageIndex === 0
-              ? trimmedContent.slice(
-                  0,
-                  30
-                )
+              ? trimmedContent.length >
+                30
+                ? `${trimmedContent.slice(
+                    0,
+                    30
+                  )}...`
+                : trimmedContent
               : chat.title,
 
           messages: [
@@ -629,8 +650,15 @@ function App() {
         );
 
         setError(
-          "Unable to generate a new response."
+          requestError.message ||
+            "Unable to generate a new response."
         );
+
+        setRetryRequest({
+          type: "edit",
+          messageId,
+          newContent: trimmedContent,
+        });
 
         // Restore the original conversation if the request fails.
         setChats((previousChats) =>
@@ -660,10 +688,33 @@ function App() {
     }
   }
 
+  function handleRetry() {
+    if (
+      !retryRequest ||
+      isLoading
+    ) {
+      return;
+    }
+
+    if (
+      retryRequest.type === "edit"
+    ) {
+      handleEditMessage(
+        retryRequest.messageId,
+        retryRequest.newContent
+      );
+
+      return;
+    }
+
+    handleRegenerateResponse();
+  }
+
   function handleNewChat() {
     handleStopGenerating();
 
     setError("");
+    setRetryRequest(null);
     setIsLoading(false);
     setActiveChatId(null);
 
@@ -678,6 +729,7 @@ function App() {
     handleStopGenerating();
 
     setError("");
+    setRetryRequest(null);
     setIsLoading(false);
 
     if (!activeChatId) {
@@ -701,6 +753,7 @@ function App() {
 
     setActiveChatId(chatId);
     setError("");
+    setRetryRequest(null);
 
     if (
       window.innerWidth <= 768
@@ -713,6 +766,7 @@ function App() {
     handleStopGenerating();
 
     setError("");
+    setRetryRequest(null);
     setIsLoading(false);
 
     setChats((previousChats) => {
@@ -878,6 +932,11 @@ function App() {
           }
           onStopGenerating={
             handleStopGenerating
+          }
+          onRetry={
+            retryRequest
+              ? handleRetry
+              : undefined
           }
           isLoading={isLoading}
           error={error}
