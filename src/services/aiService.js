@@ -1,13 +1,20 @@
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ??
+  import.meta.env.VITE_API_BASE_URL?.trim() ||
   "http://localhost:5000";
 
+/**
+ * Sends the conversation to the backend and streams
+ * the assistant response one chunk at a time.
+ */
 export async function getAIResponse(
   messages,
   onChunk,
   signal
 ) {
-  if (!Array.isArray(messages)) {
+  if (
+    !Array.isArray(messages) ||
+    messages.length === 0
+  ) {
     throw new Error(
       "Invalid conversation data."
     );
@@ -40,6 +47,7 @@ export async function getAIResponse(
       }
     );
   } catch (requestError) {
+    // Preserve cancellation so the UI does not show a false error.
     if (
       requestError.name ===
       "AbortError"
@@ -65,7 +73,7 @@ export async function getAIResponse(
         errorData.message ||
         errorMessage;
     } catch {
-      // Keep the fallback message when the response is not JSON.
+      // Keep the fallback when the server does not return JSON.
     }
 
     throw new Error(errorMessage);
@@ -108,6 +116,7 @@ export async function getAIResponse(
       onChunk(chunk);
     }
 
+    // Flush any remaining characters from the decoder.
     const finalChunk =
       decoder.decode();
 
