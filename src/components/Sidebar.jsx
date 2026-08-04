@@ -1,5 +1,9 @@
 import "../styles/Sidebar.css";
-import { useEffect, useRef, useState } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 function Sidebar({
   onNewChat,
@@ -102,6 +106,7 @@ function Sidebar({
       <div className="chat-list">
         {chats.map((chat, index) => {
           const shouldOpenUp =
+            chats.length > 4 &&
             index >= chats.length - 2;
 
           return (
@@ -141,9 +146,7 @@ function Sidebar({
                       handleCancelRename();
                     }
                   }}
-                  onBlur={
-                    handleCancelRename
-                  }
+                  onBlur={handleCancelRename}
                   autoFocus
                 />
               ) : (
@@ -151,9 +154,7 @@ function Sidebar({
                   type="button"
                   className="chat-item"
                   onClick={() =>
-                    onSelectChat(
-                      chat.id
-                    )
+                    onSelectChat(chat.id)
                   }
                   title={chat.title}
                 >
@@ -172,8 +173,7 @@ function Sidebar({
                   }
                   aria-label={`Open actions for ${chat.title}`}
                   aria-expanded={
-                    openMenuId ===
-                    chat.id
+                    openMenuId === chat.id
                   }
                 >
                   ⋮
