@@ -206,7 +206,7 @@ GitHub:
 https://github.com/Ujjwal-Darnal
 
 LinkedIn:
-https://www.linkedin.com/in/ujjwal-darnal/
+https://www.linkedin.com/in/ujjwal-darnal-b23744331/
 
 ---
 
