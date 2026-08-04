@@ -1,16 +1,213 @@
-# React + Vite
+# 🤖 AI Chat App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern AI-powered chat application inspired by ChatGPT, built with React and Express. It supports multiple conversations, real-time AI responses, Markdown rendering, syntax-highlighted code blocks, streaming responses, dark mode, and responsive design.
 
-Currently, two official plugins are available:
+## 🚀 Live Demo
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+🌐 https://ai-chat-app-fihe.vercel.app
 
-## React Compiler
+## 📂 GitHub Repository
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+https://github.com/Ujjwal-Darnal/AI-Chat-App
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+# ✨ Features
+
+- 💬 Multiple chat conversations
+- 🤖 AI-powered responses using OpenAI
+- ⚡ Streaming AI responses
+- ✍️ Edit previously sent messages
+- 📋 Copy AI responses
+- 🔄 Regenerate AI responses
+- ⏹️ Stop response generation
+- 📝 Markdown rendering
+- 💻 Syntax highlighting for code blocks
+- 🌙 Dark / Light mode
+- 📱 Fully responsive design
+- 💾 Local Storage persistence
+- 🗑️ Delete conversations
+- ✏️ Rename conversations
+- 🧹 Clear current chat
+- 📜 Auto-scrolling messages
+- 📐 Auto-resizing textarea
+- ⚠️ Error handling
+- ⏳ Loading states
+
+---
+
+# 🛠️ Tech Stack
+
+### Frontend
+
+- React
+- JavaScript (ES6+)
+- Vite
+- CSS3
+- React Markdown
+- Remark GFM
+- React Syntax Highlighter
+
+### Backend
+
+- Node.js
+- Express.js
+- OpenAI API
+
+---
+
+# 📸 Screenshots
+
+## 🏠 Home Screen
+
+![Home](images/01-home.png.png)
+
+---
+
+## 💬 AI Conversation
+
+![Conversation](images/02-chat-conversation.png.png)
+
+---
+
+## 📝 Markdown & Code Highlighting
+
+![Markdown](images/03-markdown-code.png.png)
+
+---
+
+## 📂 Chat History
+
+![Chat History](images/04-chat-history.png.png)
+
+---
+
+## ⚡ Message Actions
+
+![Message Actions](images/05-messages-actions.png.png)
+
+---
+
+## 🌙 Dark Mode
+
+![Dark Mode](images/06-dark-mode.png.png)
+
+---
+
+# ⚙️ Installation
+
+## Clone the repository
+
+```bash
+git clone https://github.com/Ujjwal-Darnal/AI-Chat-App.git
+```
+
+## Navigate into the project
+
+```bash
+cd AI-Chat-App
+```
+
+## Install frontend dependencies
+
+```bash
+npm install
+```
+
+## Install backend dependencies
+
+```bash
+cd server
+npm install
+```
+
+---
+
+# 🔑 Environment Variables
+
+## Backend (`server/.env`)
+
+```env
+OPENAI_API_KEY=your_api_key
+PORT=5000
+```
+
+## Frontend (`.env`)
+
+```env
+VITE_API_BASE_URL=http://localhost:5000
+```
+
+For production:
+
+```env
+VITE_API_BASE_URL=https://your-render-url.onrender.com
+```
+
+---
+
+# ▶️ Running Locally
+
+## Start backend
+
+```bash
+cd server
+npm run dev
+```
+
+## Start frontend
+
+```bash
+npm run dev
+```
+
+---
+
+# 📁 Project Structure
+
+```
+AI-Chat-App
+│
+├── server/
+│   ├── index.js
+│   └── .env
+│
+├── src/
+│   ├── components/
+│   ├── services/
+│   ├── styles/
+│   └── App.jsx
+│
+├── public/
+├── images/
+└── README.md
+```
+
+---
+
+# 🎯 Future Improvements
+
+- User authentication
+- Chat export
+- Voice input
+- Image generation
+- File upload support
+- AI model selection
+- Conversation search
+- PWA support
+
+---
+
+# 👨‍💻 Author
+
+**Ujjwal Darnal**
+
+GitHub:
+https://github.com/Ujjwal-Darnal
+
+LinkedIn:
+https://www.linkedin.com/in/ujjwal-darnal/
+
+---
+
+⭐ If you found this project useful, consider giving it a star!
